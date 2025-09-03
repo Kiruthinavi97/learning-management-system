@@ -18,7 +18,7 @@ The Learning Management System (LMS) is a web-based application that facilitates
 
 ## Preview
 
-You can preview the project at [Preview Link](https://lms-by-sukomal.vercel.app).
+You can preview the project at https://gugalms.netlify.app/.
 
 ## Features
 
