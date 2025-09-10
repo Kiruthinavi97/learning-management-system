@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-import { addLecture } from '../../redux/slices/LectureSlice';
+import { addLecture } from '../../Redux/slices/lectureslice';
 
 function AddCourseLecture() {
     const dispatch = useDispatch();
@@ -18,7 +18,7 @@ function AddCourseLecture() {
         }
         document.title = 'Add lecture - Learning Management System'
 
-    }, [])
+    }, [navigate, state])
 
     const [data, setData] = useState({
         cid: state?._id,
@@ -45,13 +45,13 @@ function AddCourseLecture() {
         }
     }
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         if (!data.lecture || !data.title || !data.description) {
-            toast.error("All feilds are required")
+            toast.error("All fields are required")
             return;
         }
-        const res = await dispatch(addLecture(data));
+        const res = dispatch(addLecture(data));
         if (res?.payload?.success) {
             navigate(-1)
             setData({
@@ -76,6 +76,7 @@ function AddCourseLecture() {
                     data.videoSrc ? (
                         <video key={data.videoSrc} controls controlsList="nodownload nofullscreen" disablePictureInPicture className="w-full lg:h-96 md:h-96 h-auto mb-3 lg:mb-0 md:mb-0 border-2 border-slate-500 rounded-md outline-none focus:outline-none">
                             <source src={data.videoSrc} type="video/mp4" />
+                            <track kind="captions" srcLang="en" label="English" src="" default />
                         </video>
                     ) : (
                         <div className='w-full lg:h-96 md:h-96 h-auto mb-3 lg:mb-0 md:mb-0 flex justify-center items-center border-2 border-slate-500 rounded-lg'>

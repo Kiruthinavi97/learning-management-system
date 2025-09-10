@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 
 import HomeLayout from '../../layouts/HomeLayout'
-import { deleteProfile, editProfile, getProfile } from '../../redux/slices/AuthSlice';
-import { cancelSubscription } from '../../redux/slices/RazorpaySlice';
+import { deleteProfile, editProfile, getProfile } from '../../Redux/slices/authslice';
+import { cancelSubscription } from '../../Redux/slices/razorpayslice';
 
 function Profile() {
     const dispatch = useDispatch();

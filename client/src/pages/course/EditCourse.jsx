@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import HomeLayout from '../../layouts/HomeLayout'
-import { updateCourse } from '../../redux/slices/CourseSlice';
+import { updateCourse } from '../../Redux/slices/courseslice';
 function EditCourse() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -47,7 +47,7 @@ function EditCourse() {
             navigate("/courses")
         }
         document.title = 'Edit Course - Learning Management System'
-    }, [])
+    }, [navigate, state])
 
     async function onSubmit(e) {
         e.preventDefault();
