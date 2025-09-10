@@ -34,11 +34,11 @@ You can preview the project at [Preview Link](https://lms-by-sukomal.vercel.app)
 
 Before running this project locally, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (v14.x or higher)
-- [npm](https://www.npmjs.com/) (v6.x or higher)
-- [MongoDB](https://www.mongodb.com/) (v4.x or higher)
-- [Cloudinary](https://cloudinary.com/) account and API credentials
-- [Razorpay](https://razorpay.com/) account and API credentials
+- [Node.js](https://nodejs.org/) 
+- [npm](https://www.npmjs.com/) 
+- [MongoDB](https://www.mongodb.com/) 
+- [Cloudinary](https://cloudinary.com/) 
+- [Razorpay](https://razorpay.com/) 
 
 ## Installation
 
