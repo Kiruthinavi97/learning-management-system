@@ -3,34 +3,46 @@ import { useState } from "react";
 import CarouselDiv from "../components/CarouselDiv";
 import { celeb } from "../constants/celebData.js";
 
+
 function Carousel() {
-    const [slidenumber, setSlideNumber] = useState(1);
+  const [slideNumber, setSlideNumber] = useState(0); // 0-based index
 
-    const handlePrevClick = () => {
-        setSlideNumber((currSlide) => {
-            return currSlide === 1 ? celeb.length : currSlide - 1;
-        });
-    };
+  const handlePrevClick = () => {
+    setSlideNumber((curr) => (curr === 0 ? celeb.length - 1 : curr - 1));
+  };
 
-    const handleNextClick = () => {
-        setSlideNumber((currSlide) => {
-            return currSlide === celeb.length ? 1 : currSlide + 1;
-        });
-    };
+  const handleNextClick = () => {
+    setSlideNumber((curr) => (curr === celeb.length - 1 ? 0 : curr + 1));
+  };
 
-    return (
-        <div className="relative">
-            <a href={`#slide${slidenumber}`} onClick={handlePrevClick} className="btn btn-circle absolute z-30 flex justify-center items-center  lg:left-5  left-1 top-1/2">❮</a>
-            <div className="carousel w-full relative">
-                {celeb &&
-                    celeb.map((person) => (
-                        <CarouselDiv key={person.slidenumber} {...person} totalslide={celeb.length} />
-                    ))}
-            </div>
+  return (
+    <div className="relative">
+      <button
+        onClick={handlePrevClick}
+        className="btn btn-circle absolute z-30 flex justify-center items-center lg:left-5 left-1 top-1/2"
+      >
+        ❮
+      </button>
 
-            <a href={`#slide${slidenumber}`} onClick={handleNextClick} className="btn btn-circle absolute z-30 flex justify-center items-center  lg:right-5  right-1 top-1/2">❯</a>
-        </div>
-    );
+      <div className="carousel w-full relative">
+        {celeb.map((person) => (
+          <CarouselDiv
+            key={person.id} // ✅ Use unique id instead of index
+            {...person}
+            totalslide={celeb.length}
+            isActive={person.id === slideNumber + 1} // Adjust based on slideNumber
+          />
+        ))}
+      </div>
+
+      <button
+        onClick={handleNextClick}
+        className="btn btn-circle absolute z-30 flex justify-center items-center lg:right-5 right-1 top-1/2"
+      >
+        ❯
+      </button>
+    </div>
+  );
 }
 
 export default Carousel;
