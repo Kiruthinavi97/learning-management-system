@@ -17,7 +17,7 @@ function About() {
                             in the growth and wellness of mankind.  </p>
                     </div>
                     <div className='lg:w-[30%] drop-shadow-2xl '>
-                        <img src={aboutMainImage} alt="image" className='bg-transparent' />
+                        <img src={aboutMainImage} alt="About illustration" className='bg-transparent' />
                     </div>
                 </section>
                 <section className='pt-4 w-full lg:w-[80%] lg:mx-auto'>
