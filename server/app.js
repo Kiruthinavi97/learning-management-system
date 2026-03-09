@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://lmsguga.netlify.app/"
+        "https://lmsguga.netlify.app"
     ],
     credentials: true
 }))
@@ -37,3 +37,4 @@ app.all("*", (req, res) => {
 })
 app.use(errorMiddleware)
 export default app
+
