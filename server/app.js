@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: [
         "http://localhost:5173",
-        "https://mymlmsgga.netlify.app"
+        "https://lmsguga.netlify.app/"
     ],
     credentials: true
 }))
