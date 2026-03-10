@@ -30,6 +30,7 @@ app.use("/api/v1/payments", paymentRoutes)
 app.use("/api/v1", miscRoutes)
 
 app.use("/ping", (req, res) => {
+    console.log("PING ROUTE HIT")
     res.send("Server is working")
 })
 
