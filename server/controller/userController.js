@@ -2,9 +2,9 @@ import createError from "../utils/error.js"
 import User from '../models/userModel.js'
 import bcryptjs from 'bcryptjs'
 import { v2 } from 'cloudinary'
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 import sendMail from "../utils/sendMail.js"
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 export const signup = async (req, res, next) => {
     try {
