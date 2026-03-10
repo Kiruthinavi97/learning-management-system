@@ -13,13 +13,7 @@ dotenv.config()
 const app = express()
 export const myCache = new NodeCache();
 
-app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://lmsguga.netlify.app"
-    ],
-    credentials: true
-}))
+app.use(cors())
 app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
