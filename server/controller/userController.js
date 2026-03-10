@@ -64,6 +64,8 @@ export const signup = async (req, res, next) => {
         const token = await user.generateToken();
         res.cookie('token', token, {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         res.status(201).json({
@@ -95,6 +97,8 @@ export const login = async (req, res, next) => {
         userData.password = undefined
         res.cookie('token', token, {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
         res.status(200).json({
@@ -111,6 +115,8 @@ export const logout = (req, res, next) => {
     try {
         res.cookie('token', null, {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
             maxAge: 0,
         })
         res.status(200).json({
