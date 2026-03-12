@@ -201,31 +201,33 @@ const authSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(login.fulfilled, (state, action) => {
-            localStorage.setItem("isLoggedIn", true);
-            localStorage.setItem("data", JSON.stringify(action?.payload?.userData));
-            localStorage.setItem("role", action?.payload?.userData?.role);
+    localStorage.setItem("isLoggedIn", true);
+    localStorage.setItem("data", JSON.stringify(action?.payload?.userData));
+    localStorage.setItem("role", action?.payload?.userData?.role);
+    localStorage.setItem("token", action?.payload?.token);  // ADD THIS
 
-            state.isLoggedIn = true
-            state.data = action?.payload?.userData
-            state.role = action?.payload?.userData?.role
-        })
+    state.isLoggedIn = true
+    state.data = action?.payload?.userData
+    state.role = action?.payload?.userData?.role
+})
 
-        builder.addCase(signup.fulfilled, (state, action) => {
-            localStorage.setItem("isLoggedIn", true);
-            localStorage.setItem("data", JSON.stringify(action?.payload?.user));
-            localStorage.setItem("role", action?.payload?.user?.role);
+builder.addCase(signup.fulfilled, (state, action) => {
+    localStorage.setItem("isLoggedIn", true);
+    localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+    localStorage.setItem("role", action?.payload?.user?.role);
+    localStorage.setItem("token", action?.payload?.token);  // ADD THIS
 
-            state.isLoggedIn = true
-            state.data = action?.payload?.user
-            state.role = action?.payload?.user?.role
-        })
+    state.isLoggedIn = true
+    state.data = action?.payload?.user
+    state.role = action?.payload?.user?.role
+})
 
-        builder.addCase(logout.fulfilled, (state) => {
-            localStorage.clear();
-            state.isLoggedIn = false;
-            state.data = {};
-            state.role = "";
-        })
+builder.addCase(logout.fulfilled, (state) => {
+    localStorage.clear();  // this already removes token ✅
+    state.isLoggedIn = false;
+    state.data = {};
+    state.role = "";
+})
 
         builder.addCase(getProfile.fulfilled, (state, action) => {
             localStorage.setItem("data", JSON.stringify(action?.payload?.user));

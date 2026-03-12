@@ -3,15 +3,21 @@ import JWT from 'jsonwebtoken'
 import User from '../models/userModel.js'
 
 export const isLoggedIn = async (req, res, next) => {
-    const { token } = req.cookies
+    // Check both cookie and Authorization header
+    const token = req.cookies?.token || 
+                  req.headers?.authorization?.split(' ')[1]
 
     if (!token) {
         return next(createError(401, "Please log in again"))
     }
-    const userDetails = await JWT.verify(token, process.env.JWT_SECRET)
-    req.user = userDetails
 
-    next()
+    try {
+        const userDetails = JWT.verify(token, process.env.JWT_SECRET)
+        req.user = userDetails
+        next()
+    } catch (err) {
+        return next(createError(401, err.message || "Invalid or expired token, please log in again"))
+    }
 }
 
 export const authorizedRole = (...rols) => async (req, res, next) => {

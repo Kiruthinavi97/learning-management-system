@@ -71,6 +71,7 @@ export const signup = async (req, res, next) => {
         res.status(201).json({
             success: true,
             message: 'User created Successfully',
+            token,    
             user
         });
     } catch (error) {
@@ -104,6 +105,7 @@ export const login = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: `Welcome back ${userData.name}`,
+            token,    
             userData
         })
     } catch (error) {
