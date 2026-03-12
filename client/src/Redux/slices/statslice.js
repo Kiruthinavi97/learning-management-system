@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
 
-import axiosInstanse from '../../Helpers/axiosInstance'
+import axiosInstance from '../../Helpers/axiosInstance'
+
 
 const initialState = {
     allUserCount: 0,
@@ -10,10 +11,8 @@ const initialState = {
 
 export const getStats = createAsyncThunk("stats/get", async () => {
     try {
-        toast.loading("Getting stats", {
-            position: 'top-center'
-        })
-        const response = await axiosInstanse.get("/admin/stats/users")
+        toast.loading("Getting stats", { position: 'top-center' })
+        const response = await axiosInstance.get("/api/v1/admin/stats/users")
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message)
@@ -29,6 +28,7 @@ export const getStats = createAsyncThunk("stats/get", async () => {
         throw error
     }
 })
+
 const statSlice = createSlice({
     name: 'stat',
     initialState,

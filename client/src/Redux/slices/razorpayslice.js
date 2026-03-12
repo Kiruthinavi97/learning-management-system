@@ -3,7 +3,6 @@ import { toast } from 'react-toastify'
 
 import axiosInstance from '../../Helpers/axiosInstance'
 
-
 const initialState = {
     key: "",
     subscription_id: "",
@@ -14,7 +13,7 @@ const initialState = {
 
 export const getRazorpayKey = createAsyncThunk("/razorpay/getKey", async () => {
     try {
-        const response = await axiosInstance.get('/payments/key');
+        const response = await axiosInstance.get('/api/v1/payments/key');
         return response.data;
     } catch (error) {
         toast.error(error?.response?.data?.message)
@@ -24,19 +23,18 @@ export const getRazorpayKey = createAsyncThunk("/razorpay/getKey", async () => {
 
 export const purchaseCourseBundle = createAsyncThunk("/purchaseCourse", async () => {
     try {
-        const response = await axiosInstance.post('/payments/subscribe')
+        const response = await axiosInstance.post('/api/v1/payments/subscribe')
         return response.data
     } catch (error) {
         toast.error(error?.response?.data?.message)
         throw error
     }
 })
+
 export const verifyUserPayment = createAsyncThunk("/verifyPayment", async (data) => {
     try {
-        toast.loading("Wait! verify payment...", {
-            position: 'top-center'
-        })
-        const response = await axiosInstance.post('/payments/verify', {
+        toast.loading("Wait! verify payment...", { position: 'top-center' })
+        const response = await axiosInstance.post('/api/v1/payments/verify', {
             payment_id: data.payment_id,
             razorpay_signature: data.razorpay_signature,
             subscription_id: data.subscription_id
@@ -53,31 +51,8 @@ export const verifyUserPayment = createAsyncThunk("/verifyPayment", async (data)
 
 export const getPaymentsRecord = createAsyncThunk("/paymentsRecord", async () => {
     try {
-        toast.loading("Getting payments record", {
-            position: 'top-center'
-        })
-        const response = await axiosInstance.get("/payments?count=100")
-        if (response.status === 200) {
-            toast.dismiss();
-            toast.success(response.data.message);
-            return response.data;
-        } else {
-            toast.dismiss();
-            toast.error(response.data.message);
-            throw new Error(response.data.message);
-        }
-    } catch (error) {
-        toast.dismiss();
-        toast.error(error?.response?.data?.message)
-        throw error
-    }
-})
-export const cancelSubscription = createAsyncThunk("/cancel/subscribtion", async () => {
-    try {
-        toast.loading("wait! Cancel subscribtion...", {
-            position: 'top-center'
-        })
-        const response = await axiosInstance.post("/payments/unsubscribe")
+        toast.loading("Getting payments record", { position: 'top-center' })
+        const response = await axiosInstance.get("/api/v1/payments?count=100")
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -94,6 +69,25 @@ export const cancelSubscription = createAsyncThunk("/cancel/subscribtion", async
     }
 })
 
+export const cancelSubscription = createAsyncThunk("/cancel/subscribtion", async () => {
+    try {
+        toast.loading("wait! Cancel subscribtion...", { position: 'top-center' })
+        const response = await axiosInstance.post("/api/v1/payments/unsubscribe")
+        if (response.status === 200) {
+            toast.dismiss();
+            toast.success(response.data.message);
+            return response.data;
+        } else {
+            toast.dismiss();
+            toast.error(response.data.message);
+            throw new Error(response.data.message);
+        }
+    } catch (error) {
+        toast.dismiss();
+        toast.error(error?.response?.data?.message)
+        throw error
+    }
+})
 
 const razorpaySlice = createSlice({
     name: "razorpay",

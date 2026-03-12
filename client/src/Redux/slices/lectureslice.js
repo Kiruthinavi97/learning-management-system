@@ -9,10 +9,8 @@ const initialState = {
 
 export const getLectures = createAsyncThunk("/course/lecture", async (cid) => {
     try {
-        toast.loading("Wait! fetching lectures", {
-            position: 'top-center'
-        })
-        const response = await axiosInstance.get(`/course/${cid}`);
+        toast.loading("Wait! fetching lectures", { position: 'top-center' })
+        const response = await axiosInstance.get(`/api/v1/course/${cid}`);
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -28,16 +26,15 @@ export const getLectures = createAsyncThunk("/course/lecture", async (cid) => {
         throw error;
     }
 })
+
 export const addLecture = createAsyncThunk("/course/lecture/add", async (data) => {
     try {
-        toast.loading("Wait! adding lecture", {
-            position: 'top-center'
-        })
+        toast.loading("Wait! adding lecture", { position: 'top-center' })
         const formData = new FormData();
         formData.append("lecture", data.lecture);
         formData.append("title", data.title);
         formData.append("description", data.description)
-        const response = await axiosInstance.post(`/course/${data.cid}`, formData);
+        const response = await axiosInstance.post(`/api/v1/course/${data.cid}`, formData);
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -53,16 +50,15 @@ export const addLecture = createAsyncThunk("/course/lecture/add", async (data) =
         throw error;
     }
 })
+
 export const updateLecture = createAsyncThunk("/course/lecture/update", async (data) => {
     try {
-        toast.loading("Wait! updating lecture", {
-            position: 'top-center'
-        })
+        toast.loading("Wait! updating lecture", { position: 'top-center' })
         const formData = new FormData();
         formData.append("lecture", data.lecture);
         formData.append("title", data.title);
         formData.append("description", data.description)
-        const response = await axiosInstance.put(`/course/lectures/${data.cid}/${data.lectureId}`, formData);
+        const response = await axiosInstance.put(`/api/v1/course/lectures/${data.cid}/${data.lectureId}`, formData);
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -78,12 +74,11 @@ export const updateLecture = createAsyncThunk("/course/lecture/update", async (d
         throw error;
     }
 })
+
 export const deleteLecture = createAsyncThunk("/course/lecture/delete", async (data) => {
     try {
-        toast.loading("Wait! deleting lecture", {
-            position: 'top-center'
-        })
-        const response = await axiosInstance.delete(`/course/lectures/${data.cid}/${data.lectureId}`);
+        toast.loading("Wait! deleting lecture", { position: 'top-center' })
+        const response = await axiosInstance.delete(`/api/v1/course/lectures/${data.cid}/${data.lectureId}`);
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);

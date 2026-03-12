@@ -12,7 +12,7 @@ export const getAllCourse = createAsyncThunk('/course/get', async () => {
         toast.loading("loading course data...", {
             position: 'top-center'
         })
-        const response = await axiosInstance.get('/course')
+        const response = await axiosInstance.get('/api/v1/course')  // FIXED
         toast.dismiss()
         toast.success(response.data.message)
         return response.data?.courses
@@ -28,7 +28,7 @@ export const createCourse = createAsyncThunk('/course/create', async (data) => {
         toast.loading("wait! creating course...", {
             position: 'top-center'
         })
-        const response = await axiosInstance.post('/course/newcourse', data);
+        const response = await axiosInstance.post('/api/v1/course/newcourse', data);  // FIXED
         if (response.status === 201) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -44,6 +44,7 @@ export const createCourse = createAsyncThunk('/course/create', async (data) => {
         throw error;
     }
 })
+
 export const updateCourse = createAsyncThunk('/course/update', async (data) => {
     try {
         toast.loading("wait! updating course...", {
@@ -57,7 +58,7 @@ export const updateCourse = createAsyncThunk('/course/update', async (data) => {
         if (data.thumbnail) {
             formData.append("thumbnail", data.thumbnail);
         }
-        const response = await axiosInstance.put(`/course/${data.id}`, formData);
+        const response = await axiosInstance.put(`/api/v1/course/${data.id}`, formData);  // FIXED
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -73,12 +74,13 @@ export const updateCourse = createAsyncThunk('/course/update', async (data) => {
         throw error;
     }
 })
+
 export const deleteCourse = createAsyncThunk('/course/delete', async (id) => {
     try {
         toast.loading("wait! deleting course...", {
             position: 'top-center'
         })
-        const response = await axiosInstance.delete(`/course/${id}`);
+        const response = await axiosInstance.delete(`/api/v1/course/${id}`);  // FIXED
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -96,7 +98,7 @@ export const deleteCourse = createAsyncThunk('/course/delete', async (id) => {
 })
 
 const courseSlice = createSlice({
-    name: 'courses',
+    name: 'course',  // FIXED: changed from 'courses' to 'course'
     initialState,
     reducers: {},
     extraReducers: (builder) => {
