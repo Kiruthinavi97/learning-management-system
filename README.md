@@ -93,7 +93,7 @@ Before running this project locally, ensure you have the following installed:
    npm run dev
    ```
 
-3. Access the application at [http://localhost:5173](http://localhost:5173)
+3. Access the application at https://lmsguga.netlify.app/
 
 ## Subscription Management
 
