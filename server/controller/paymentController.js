@@ -50,10 +50,10 @@ export const buySubscription = async (req, res, next) => {
                 subscription_id: subscription.id
             })
         }
-    }  catch (error) {
-        console.error("SUBSCRIBE ERROR:", error.message, error.stack)  // ADD THIS LINE
-        return next(createError(500, error.message))
-    }
+    } catch (error) {
+    console.error("SUBSCRIBE ERROR FULL:", JSON.stringify(error))
+    return next(createError(500, error.message || "Subscription failed"))
+}
 }
 export const verifySubscription = async (req, res, next) => {
     try {
