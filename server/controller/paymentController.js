@@ -50,7 +50,8 @@ export const buySubscription = async (req, res, next) => {
                 subscription_id: subscription.id
             })
         }
-    } catch (error) {
+    }  catch (error) {
+        console.error("SUBSCRIBE ERROR:", error.message, error.stack)  // ADD THIS LINE
         return next(createError(500, error.message))
     }
 }
