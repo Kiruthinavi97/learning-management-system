@@ -35,7 +35,7 @@ function Contact() {
                 toast.loading("wait! sending message...", {
                     position: 'top-center'
                 })
-                const response = await axiosInstance.post('/contactus', userInput);
+                const response = await axiosInstance.post('/api/v1/contactus', userInput);
                 console.log(response);
                 toast.dismiss();
                 if (response.data?.success) {
