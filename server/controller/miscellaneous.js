@@ -21,15 +21,18 @@ export const contactUs = async (req, res, next) => {
     <p>${message}</p>
     `
     try {
+        console.log("GMAIL_ID:", process.env.GMAIL_ID)
+        console.log("APP_PASSWORD length:", process.env.APP_PASSWORD?.length)
         await sendMail(email, process.env.GMAIL_ID, subject, textMessage);
+        await sendMail(process.env.GMAIL_ID, email, replySubject, replyText)
         res.status(200).json({
             success: true,
             message: `Message sent successfully`
         })
     } catch (error) {
-        return (next(createError(400, error.message)))
+        console.error("CONTACT ERROR:", error.message)
+        return (next(createError(500, error.message)))
     }
-    await sendMail(process.env.GMAIL_ID, email, replySubject, replyText)
 }
 
 export const userStats = async (req, res, next) => {
