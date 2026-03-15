@@ -14,6 +14,8 @@ export const getRazorpayKey = async (req, res, next) => {
 }
 export const buySubscription = async (req, res, next) => {
     try {
+        console.log("KEY ID:", process.env.RAZORPAY_API_KEY)
+        console.log("SECRET LENGTH:", process.env.RAZORPAY_API_SECRET?.length)
         const { id } = req.user
         const user = await User.findById(id)
         if (!user) {
