@@ -5,26 +5,21 @@ import sendMail from '../utils/sendMail.js'
 export const contactUs = async (req, res, next) => {
     const { name, email, message } = req.body;
     if (!name || !email || !message) {
-        return (next(createError(400, "All input feilds required")))
+        return (next(createError(400, "All input fields are required")))
     }
-    const subject = `You got a new message from ${name}`;
-    const replySubject = `Thank you ${name}`
-    const replyText = `
-    <h3>Hello ${name}</h3>
-    <p>Thank you for your message. We review your message and reply as soon as possible</p>
-    <br/>
-    Thank you
-    `
+
+    const subject = `New message from ${name} (${email})`;
     const textMessage = `
-    <h3>My email id ${email}</h3>
-    <br/>
-    <p>${message}</p>
+        <h3>From: ${name}</h3>
+        <h4>Email: ${email}</h4>
+        <br/>
+        <p>${message}</p>
     `
+
     try {
-        console.log("GMAIL_ID:", process.env.GMAIL_ID)
-        console.log("APP_PASSWORD length:", process.env.APP_PASSWORD?.length)
+        // Send only to YOUR email (Resend free tier restriction)
         await sendMail(email, process.env.GMAIL_ID, subject, textMessage);
-        await sendMail(process.env.GMAIL_ID, email, replySubject, replyText)
+
         res.status(200).json({
             success: true,
             message: `Message sent successfully`
