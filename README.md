@@ -34,7 +34,8 @@ Before running this project locally, ensure you have the following installed:
 - [npm](https://www.npmjs.com/) 
 - [MongoDB](https://www.mongodb.com/) 
 - [Cloudinary](https://cloudinary.com/) 
-- [Razorpay](https://razorpay.com/) 
+- [Razorpay](https://razorpay.com/)
+- https://resend.com/
 
 ## Installation
 
@@ -75,6 +76,7 @@ Before running this project locally, ensure you have the following installed:
    RAZORPAY_API_KEY=<your_razorpay_api_key>
    RAZORPAY_PLAN_ID=<your_subscription_plan_id>
    RAZORPAY_KEY_SECRET=<your_razorpay_key_secret>
+   RESEND_API_KEY=<your_resend_api_key>
    ```
 
 ## Usage
