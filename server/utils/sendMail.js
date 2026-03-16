@@ -1,26 +1,19 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const sendMail = async (fromMail, toMail, subject, message) => {
-    let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.GMAIL_ID,
-            pass: process.env.APP_PASSWORD
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    })
-
-    await transporter.sendMail({
-        from: process.env.GMAIL_ID,  // must be your Gmail, not user-submitted email
+    const { error } = await resend.emails.send({
+        from: 'onboarding@resend.dev', // use this until you verify your domain
         to: toMail,
-        replyTo: fromMail,           // user's email goes here so you can reply to them
+        replyTo: fromMail,
         subject: subject,
         html: message
     })
+
+    if (error) {
+        throw new Error(error.message)
+    }
 }
 
 export default sendMail
