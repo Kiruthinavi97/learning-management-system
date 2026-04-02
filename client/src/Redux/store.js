@@ -5,6 +5,7 @@ import courseSlice from './slices/courseslice'
 import lectureSlice from './slices/lectureslice'
 import razorpaySlice from './slices/razorpayslice'
 import statSlice from './slices/statslice'
+import tutorSlice from './slices/tutorSlice'
 
 const store = configureStore({
     reducer: {
@@ -12,10 +13,10 @@ const store = configureStore({
         course: courseSlice,
         razorpay: razorpaySlice,
         lecture: lectureSlice,
-        stat: statSlice
+        stat: statSlice,
+        tutor: tutorSlice       
     },
     devTools: true
 })
-
 
 export default store

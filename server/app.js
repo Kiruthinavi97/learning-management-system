@@ -1,17 +1,19 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import cors from 'cors'   
+import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import NodeCache from 'node-cache'
+
 import userRoutes from './routes/userRoutes.js'
 import courseRoutes from './routes/courseRoutes.js'
 import paymentRoutes from './routes/paymentRoutes.js'
 import miscRoutes from './routes/miscellaneousRoutes.js'
+import tutorRoutes from './routes/tutorRoutes.js'
 import errorMiddleware from './middleware/errorMiddleware.js'
-import NodeCache from 'node-cache'
 
 dotenv.config()
 const app = express()
-export const myCache = new NodeCache();
+export const myCache = new NodeCache()
 
 app.use(cors({
     origin: [
@@ -24,10 +26,12 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Routes
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/course", courseRoutes)
 app.use("/api/v1/payments", paymentRoutes)
 app.use("/api/v1", miscRoutes)
+app.use("/api/v1/tutor", tutorRoutes)   // ✅ moved here after app is created
 
 app.use("/ping", (req, res) => {
     console.log("PING ROUTE HIT")
@@ -37,6 +41,7 @@ app.use("/ping", (req, res) => {
 app.all("*", (req, res) => {
     res.status(404).send(`!oops page not found`)
 })
-app.use(errorMiddleware)
-export default app
 
+app.use(errorMiddleware)
+
+export default app

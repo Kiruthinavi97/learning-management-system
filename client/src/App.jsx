@@ -23,6 +23,8 @@ import Checkout from './pages/payments/Checkout';
 import CheckoutFail from './pages/payments/CheckoutFail';
 import CheckoutSuccess from './pages/payments/CheckoutSuccess';
 import Profile from './pages/user/Profile';
+import TutorSignUp from './pages/tutor/TutorSignUp';
+import TutorLogin from './pages/tutor/TutorLogin';
 
 function App() {
   const location = useLocation();
@@ -74,6 +76,8 @@ function App() {
       <Route element={<UnprotectedRoute />}>
         <Route path='/signup' element={<SignUp />} />
         <Route path='/login' element={<LogIn />} />
+        <Route path='/tutor/signup' element={<TutorSignUp />} /> 
+        <Route path='/tutor/login' element={<TutorLogin />} /> 
       </Route>
 
       <Route path='/reset-password/:resetToken' element={<ResetPassword />} />
@@ -100,6 +104,8 @@ function App() {
         <Route path='/course/:name/checkout/fail' element={<CheckoutFail />} />
         <Route path='/course/:name/:id/lectures' element={<CourseLectures />} />
       </Route>
+      <Route path='/tutor/signup' element={<TutorSignUp />} />
+      <Route path='/tutor/login' element={<TutorLogin />} />
     </Routes>
   );
 }
