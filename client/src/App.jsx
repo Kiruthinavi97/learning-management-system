@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import About from './pages/About';
-import ChangePassword from './pages/password/ChangePassword';
-import CheckoutFail from './pages/payments/CheckoutFail';
-import CheckoutSuccess from './pages/payments/CheckoutSuccess';
-import Checkout from './pages/payments/Checkout';
+import LogIn from './pages/auth/LogIn';
+import RequiredAuth from './pages/auth/RequiredAuth';
+import SignUp from './pages/auth/SignUp';
+import UnprotectedRoute from './pages/auth/UnprotectedRoute';
 import Contact from './pages/Contact';
 import CourseDescription from './pages/course/CourseDescription';
 import CourseList from './pages/course/CourseList';
@@ -16,9 +16,8 @@ import AdminDashboard from './pages/dashboard/AdminDashboard';
 import CourseLectures from './pages/dashboard/CourseLectures';
 import EditCourseLecture from './pages/dashboard/EditCourseLecture';
 import HomePage from './pages/HomePage';
-import LogIn from './pages/auth/LogIn';
 import NotFound from './pages/NotFound';
-import RequiredAuth from './pages/auth/RequiredAuth';
+import ChangePassword from './pages/password/ChangePassword';
 import ResetPassword from './pages/password/ResetPassword';
 import Checkout from './pages/payments/Checkout';
 import CheckoutFail from './pages/payments/CheckoutFail';
@@ -33,7 +32,6 @@ function App() {
   useEffect(() => {
     const path = location.pathname;
 
-    // Static path titles
     const titles = {
       '/': 'Learning Management System',
       '/about': 'About - Learning Management System',
@@ -45,10 +43,11 @@ function App() {
       '/course/create': 'Create course - Learning Management System',
       '/admin/dashboard': 'Admin dashboard - Learning Management System',
       '/profile': 'Profile - Learning Management System',
-      '/profile/changePassword': 'Change Password - Learning Management System'
+      '/profile/changePassword': 'Change Password - Learning Management System',
+      '/tutor/signup': 'Tutor Sign Up - Learning Management System',
+      '/tutor/login': 'Tutor Login - Learning Management System',
     };
 
-    // Check dynamic paths
     if (path.includes('/course/') && path.includes('/editCourse')) {
       document.title = 'Edit Course - Learning Management System';
     } else if (path.includes('/lectures/addlecture')) {
@@ -71,21 +70,18 @@ function App() {
   return (
     <Routes>
       <Route path='*' element={<NotFound />} />
-
       <Route path='/' element={<HomePage />} />
 
       <Route element={<UnprotectedRoute />}>
         <Route path='/signup' element={<SignUp />} />
         <Route path='/login' element={<LogIn />} />
-        <Route path='/tutor/signup' element={<TutorSignUp />} /> 
-        <Route path='/tutor/login' element={<TutorLogin />} /> 
+        <Route path='/tutor/signup' element={<TutorSignUp />} />
+        <Route path='/tutor/login' element={<TutorLogin />} />
       </Route>
 
       <Route path='/reset-password/:resetToken' element={<ResetPassword />} />
-
       <Route path='/about' element={<About />} />
       <Route path='/contact' element={<Contact />} />
-
       <Route path='/courses' element={<CourseList />} />
       <Route path='/course/description' element={<CourseDescription />} />
 
@@ -105,8 +101,7 @@ function App() {
         <Route path='/course/:name/checkout/fail' element={<CheckoutFail />} />
         <Route path='/course/:name/:id/lectures' element={<CourseLectures />} />
       </Route>
-      <Route path='/tutor/signup' element={<TutorSignUp />} />
-      <Route path='/tutor/login' element={<TutorLogin />} />
+
     </Routes>
   );
 }
