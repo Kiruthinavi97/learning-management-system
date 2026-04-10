@@ -14,7 +14,7 @@ const store = configureStore({
         razorpay: razorpaySlice,
         lecture: lectureSlice,
         stat: statSlice,
-        tutor: tutorSlice       
+        tutor: tutorSlice
     },
     devTools: true
 })
