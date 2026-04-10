@@ -25,6 +25,7 @@ import CheckoutSuccess from './pages/payments/CheckoutSuccess';
 import Profile from './pages/user/Profile';
 import TutorSignUp from './pages/tutor/TutorSignUp';
 import TutorLogin from './pages/tutor/TutorLogin';
+import TutorDashboard from './pages/tutor/TutorDashboard'
 
 function App() {
   const location = useLocation();
@@ -78,7 +79,7 @@ function App() {
         <Route path='/tutor/signup' element={<TutorSignUp />} />
         <Route path='/tutor/login' element={<TutorLogin />} />
       </Route>
-
+      <Route path='/tutor/dashboard' element={<TutorDashboard />} />
       <Route path='/reset-password/:resetToken' element={<ResetPassword />} />
       <Route path='/about' element={<About />} />
       <Route path='/contact' element={<Contact />} />
