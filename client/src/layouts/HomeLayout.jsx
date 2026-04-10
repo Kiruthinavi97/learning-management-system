@@ -61,14 +61,20 @@ function HomeLayout({ children }) {
                             </div>
                         )}
 
-                        {/* Admin link */}
+                        {/* Admin links */}
                         {isLoggedIn && role === 'ADMIN' && (
-                            <li><Link to={'/admin/dashboard'}>Admin DashBoard</Link></li>
+                            <>
+                                <li><Link to={'/admin/dashboard'}>Admin Dashboard</Link></li>
+                                <li><Link to={'/admin/users'}>Manage Users</Link></li>
+                            </>
                         )}
 
-                        {/* Tutor dashboard link */}
+                        {/* Tutor links */}
                         {isTutorLoggedIn && (
-                            <li><Link to={'/tutor/dashboard'}>Tutor Dashboard</Link></li>
+                            <>
+                                <li><Link to={'/tutor/dashboard'}>Tutor Dashboard</Link></li>
+                                <li><Link to={'/tutor/bookings'}>My Bookings</Link></li>
+                            </>
                         )}
 
                         {/* Common links */}
@@ -78,7 +84,7 @@ function HomeLayout({ children }) {
                         <li><Link to={'/contact'}>Contact Us</Link></li>
                         <li><Link to={'/about'}>About Us</Link></li>
 
-                        {/* Not logged in — show student + tutor options */}
+                        {/* Not logged in */}
                         {!isLoggedIn && !isTutorLoggedIn && (
                             <div className='w-full absolute bottom-4 px-4 left-0 flex flex-col gap-3 justify-center items-center'>
                                 <p className='text-slate-400 text-sm'>Student</p>
@@ -101,9 +107,8 @@ function HomeLayout({ children }) {
                         {/* Student logged in */}
                         {isLoggedIn && (
                             <>
-                                <li>
-                                    <Link to={'/profile'} className='w-full'>Profile</Link>
-                                </li>
+                                <li><Link to={'/profile'}>Profile</Link></li>
+                                <li><Link to={'/my-bookings'}>My Bookings</Link></li>
                                 <div onClick={onLogout} className='w-full absolute bottom-12 left-0 px-4'>
                                     <button className='btn-secondary py-2 w-full font-semibold rounded-md'>LogOut</button>
                                 </div>
