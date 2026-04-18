@@ -31,6 +31,8 @@ import TutorDashboard from './pages/tutor/TutorDashboard';
 import TutorLogin from './pages/tutor/TutorLogin';
 import TutorProfile from './pages/tutor/TutorProfile';
 import TutorSignUp from './pages/tutor/TutorSignUp';
+import UserDashboard from './pages/user/UserDashboard';
+import Certificates from './pages/user/Certificates';
 
 function App() {
   const location = useLocation();
@@ -102,6 +104,8 @@ function App() {
       {/* Tutor routes */}
       <Route path='/tutor/dashboard' element={<TutorDashboard />} />
       <Route path='/tutor/bookings' element={<TutorBookings />} />
+      <Route path='/dashboard' element={<UserDashboard />} />
+      <Route path='/certificates' element={<Certificates />} />
 
       {/* Admin only routes */}
       <Route element={<RequiredAuth allowedRole={['ADMIN']} />}>

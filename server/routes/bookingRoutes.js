@@ -1,6 +1,7 @@
 import express from 'express'
 import {
-    createBooking,
+    createBookingOrder,
+    verifyBookingPayment,
     getStudentBookings,
     getTutorBookings,
     updateBookingStatus,
@@ -11,11 +12,12 @@ import { isLoggedIn } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
 
-router.post('/', isLoggedIn, createBooking)                          // Student books a lesson
-router.get('/student', isLoggedIn, getStudentBookings)               // Student views their bookings
-router.get('/tutor', isLoggedIn, getTutorBookings)                   // Tutor views their bookings
-router.put('/:id/status', isLoggedIn, updateBookingStatus)           // Tutor confirms/cancels
-router.put('/:id/cancel', isLoggedIn, cancelBooking)                 // Student cancels
-router.get('/all', isLoggedIn, getAllBookings)                        // Admin views all bookings
+router.post('/order', isLoggedIn, createBookingOrder)           // Step 1: Create Razorpay order
+router.post('/verify', isLoggedIn, verifyBookingPayment)        // Step 2: Verify payment & confirm booking
+router.get('/student', isLoggedIn, getStudentBookings)          // Student bookings
+router.get('/tutor', isLoggedIn, getTutorBookings)              // Tutor bookings
+router.get('/all', isLoggedIn, getAllBookings)                   // Admin all bookings
+router.put('/:id/status', isLoggedIn, updateBookingStatus)      // Tutor confirms/cancels
+router.put('/:id/cancel', isLoggedIn, cancelBooking)            // Student cancels
 
 export default router

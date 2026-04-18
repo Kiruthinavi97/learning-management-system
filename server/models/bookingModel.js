@@ -1,44 +1,29 @@
 import { Schema, model } from 'mongoose'
 
 const bookingSchema = new Schema({
-    student: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    student: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     studentName: String,
     studentEmail: String,
-    tutor: {
-        type: Schema.Types.ObjectId,
-        ref: 'Tutor',
-        required: true
-    },
+    tutor: { type: Schema.Types.ObjectId, ref: 'Tutor', required: true },
     tutorName: String,
-    date: {
-        type: String,
-        required: [true, 'Date is required']
-    },
-    time: {
-        type: String,
-        required: [true, 'Time is required']
-    },
-    duration: {
-        type: Number,
-        default: 1
-    },
-    amount: {
-        type: Number,
-        required: true
-    },
+    date: { type: String, required: true },
+    time: { type: String, required: true },
+    duration: { type: Number, default: 1 },
+    amount: { type: Number, required: true },
     notes: String,
     status: {
         type: String,
         enum: ['pending', 'confirmed', 'cancelled', 'completed'],
         default: 'pending'
     },
-    meetingLink: {
+    meetingLink: { type: String, default: '' },
+    // Payment fields
+    paymentId: { type: String, default: '' },
+    orderId: { type: String, default: '' },
+    paymentStatus: {
         type: String,
-        default: ''
+        enum: ['pending', 'paid', 'failed', 'refunded'],
+        default: 'pending'
     }
 }, { timestamps: true })
 
