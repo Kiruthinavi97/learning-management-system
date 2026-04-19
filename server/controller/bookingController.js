@@ -5,10 +5,16 @@ import createError from '../utils/error.js'
 import Razorpay from 'razorpay'
 import crypto from 'crypto'
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_SECRET
-})
+// ✅ Lazy init - prevents crash on server startup if env vars missing
+function getRazorpay() {
+    if (!process.env.RAZORPAY_API_KEY || !process.env.RAZORPAY_KEY_SECRET) {
+        throw new Error('Razorpay credentials not configured in environment variables')
+    }
+    return new Razorpay({
+        key_id: process.env.RAZORPAY_API_KEY,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+    })
+}
 
 // Create Razorpay Order for booking
 export const createBookingOrder = async (req, res, next) => {
@@ -19,7 +25,7 @@ export const createBookingOrder = async (req, res, next) => {
         const tutor = await Tutor.findById(tutorId)
         if (!tutor) return next(createError(404, 'Tutor not found'))
 
-        // ✅ Check time conflict
+        // Check time conflict
         const conflict = await Booking.findOne({
             tutor: tutorId,
             date,
@@ -31,10 +37,10 @@ export const createBookingOrder = async (req, res, next) => {
         }
 
         const amount = tutor.hourlyRate * (duration || 1)
+        const razorpay = getRazorpay()
 
-        // Create Razorpay order
         const order = await razorpay.orders.create({
-            amount: amount * 100, // paise
+            amount: amount * 100,
             currency: 'INR',
             receipt: `booking_${Date.now()}`,
             notes: { tutorId, studentId: studentId.toString(), date, time, duration }
@@ -42,7 +48,7 @@ export const createBookingOrder = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            key: process.env.RAZORPAY_KEY_ID,
+            key: process.env.RAZORPAY_API_KEY,
             order,
             tutor: { name: tutor.name, subject: tutor.subject, hourlyRate: tutor.hourlyRate },
             amount,
@@ -59,10 +65,9 @@ export const verifyBookingPayment = async (req, res, next) => {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingDetails } = req.body
         const studentId = req.user.id
 
-        // Verify signature
         const sign = razorpay_order_id + '|' + razorpay_payment_id
         const expectedSign = crypto
-            .createHmac('sha256', process.env.RAZORPAY_SECRET)
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
             .update(sign)
             .digest('hex')
 
@@ -91,7 +96,6 @@ export const verifyBookingPayment = async (req, res, next) => {
             status: 'pending'
         })
 
-        // Update tutor earnings
         tutor.earnings.total += amount
         tutor.earnings.history.push({ amount, studentName: student.name, lessonId: booking._id })
         await tutor.save()
@@ -106,7 +110,6 @@ export const verifyBookingPayment = async (req, res, next) => {
     }
 }
 
-// Get Student Bookings
 export const getStudentBookings = async (req, res, next) => {
     try {
         const bookings = await Booking.find({ student: req.user.id })
@@ -118,7 +121,6 @@ export const getStudentBookings = async (req, res, next) => {
     }
 }
 
-// Get Tutor Bookings
 export const getTutorBookings = async (req, res, next) => {
     try {
         const bookings = await Booking.find({ tutor: req.user.id })
@@ -130,7 +132,6 @@ export const getTutorBookings = async (req, res, next) => {
     }
 }
 
-// Update Booking Status
 export const updateBookingStatus = async (req, res, next) => {
     try {
         const { id } = req.params
@@ -146,7 +147,6 @@ export const updateBookingStatus = async (req, res, next) => {
     }
 }
 
-// Cancel Booking
 export const cancelBooking = async (req, res, next) => {
     try {
         const { id } = req.params
@@ -160,7 +160,6 @@ export const cancelBooking = async (req, res, next) => {
     }
 }
 
-// Admin - All Bookings with payment history
 export const getAllBookings = async (req, res, next) => {
     try {
         const bookings = await Booking.find()

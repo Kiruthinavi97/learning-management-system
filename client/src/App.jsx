@@ -25,14 +25,14 @@ import CheckoutFail from './pages/payments/CheckoutFail';
 import CheckoutSuccess from './pages/payments/CheckoutSuccess';
 import MyBookings from './pages/user/MyBookings';
 import Profile from './pages/user/Profile';
+import StudentDashboard from './pages/user/StudentDashboard';
+import CourseCertificate from './pages/user/CourseCertificate';
 import BrowseTutors from './pages/tutor/BrowseTutors';
 import TutorBookings from './pages/tutor/TutorBookings';
 import TutorDashboard from './pages/tutor/TutorDashboard';
 import TutorLogin from './pages/tutor/TutorLogin';
 import TutorProfile from './pages/tutor/TutorProfile';
 import TutorSignUp from './pages/tutor/TutorSignUp';
-import UserDashboard from './pages/user/UserDashboard';
-import Certificates from './pages/user/Certificates';
 
 function App() {
   const location = useLocation();
@@ -47,6 +47,8 @@ function App() {
       '/login': 'Log In - LMS',
       '/courses': 'All Courses - LMS',
       '/tutors': 'Find Tutors - LMS',
+      '/dashboard': 'My Dashboard - LMS',
+      '/certificate': 'My Certificate - LMS',
       '/course/description': 'Course Description - LMS',
       '/course/create': 'Create Course - LMS',
       '/admin/dashboard': 'Admin Dashboard - LMS',
@@ -72,6 +74,8 @@ function App() {
       document.title = 'Checkout Fail - LMS';
     } else if (path.includes('/checkout')) {
       document.title = 'Checkout - LMS';
+    } else if (path.includes('/lectures')) {
+      document.title = 'Course Lectures - LMS';
     } else if (titles[path]) {
       document.title = titles[path];
     } else {
@@ -104,10 +108,8 @@ function App() {
       {/* Tutor routes */}
       <Route path='/tutor/dashboard' element={<TutorDashboard />} />
       <Route path='/tutor/bookings' element={<TutorBookings />} />
-      <Route path='/dashboard' element={<UserDashboard />} />
-      <Route path='/certificates' element={<Certificates />} />
 
-      {/* Admin only routes */}
+      {/* Admin only */}
       <Route element={<RequiredAuth allowedRole={['ADMIN']} />}>
         <Route path='/course/create' element={<CreateCourse />} />
         <Route path='/course/:name/:id/editCourse' element={<EditCourse />} />
@@ -117,8 +119,9 @@ function App() {
         <Route path='/admin/users' element={<AdminUsers />} />
       </Route>
 
-      {/* Student protected routes */}
+      {/* Student protected */}
       <Route element={<RequiredAuth allowedRole={['ADMIN', 'USER']} />}>
+        <Route path='/dashboard' element={<StudentDashboard />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/profile/changePassword' element={<ChangePassword />} />
         <Route path='/course/:name/checkout' element={<Checkout />} />
@@ -126,8 +129,8 @@ function App() {
         <Route path='/course/:name/checkout/fail' element={<CheckoutFail />} />
         <Route path='/course/:name/:id/lectures' element={<CourseLectures />} />
         <Route path='/my-bookings' element={<MyBookings />} />
+        <Route path='/certificate' element={<CourseCertificate />} />
       </Route>
-
     </Routes>
   );
 }

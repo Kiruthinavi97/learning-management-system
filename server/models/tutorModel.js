@@ -12,7 +12,7 @@ const tutorSchema = new Schema({
         lowercase: true,
         trim: true
     },
-    email: {
+    email: { ṁ
         type: String,
         unique: true,
         required: [true, 'Email is required'],
