@@ -7,12 +7,12 @@ import crypto from 'crypto'
 
 // ✅ Lazy init - prevents crash on server startup if env vars missing
 function getRazorpay() {
-    if (!process.env.RAZORPAY_API_KEY || !process.env.RAZORPAY_KEY_SECRET) {
+    if (!process.env.RAZORPAY_API_KEY || !process.env.RAZORPAY_API_SECRET) {
         throw new Error('Razorpay credentials not configured in environment variables')
     }
     return new Razorpay({
         key_id: process.env.RAZORPAY_API_KEY,
-        key_secret: process.env.RAZORPAY_KEY_SECRET
+        key_secret: process.env.RAZORPAY_API_SECRET
     })
 }
 
@@ -67,7 +67,7 @@ export const verifyBookingPayment = async (req, res, next) => {
 
         const sign = razorpay_order_id + '|' + razorpay_payment_id
         const expectedSign = crypto
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .createHmac('sha256', process.env.RAZORPAY_API_SECRET)
             .update(sign)
             .digest('hex')
 
