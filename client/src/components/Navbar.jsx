@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
-import { FiSearch, FiChevronDown, FiMenu, FiX, FiUser, FiLogOut, FiBook, FiUsers, FiAward, FiCalendar, FiSettings, FiGrid, FiBell, FiStar } from 'react-icons/fi'
+import { FiSearch, FiChevronDown, FiMenu, FiX, FiUser, FiLogOut, FiBook, FiUsers, FiAward, FiCalendar, FiSettings, FiGrid, FiBell, FiStar, FiPlay } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
