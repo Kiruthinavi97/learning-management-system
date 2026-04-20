@@ -1,58 +1,71 @@
-import Lottie from "lottie-react";
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-
-import animationData from '../../lotties/payment-successful.json'
-import { getProfile } from '../../Redux/slices/authslice';
-
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { Link, useLocation } from 'react-router-dom'
+import { FiCheckCircle, FiBook, FiAward } from 'react-icons/fi'
+import { refreshProfile } from '../../Redux/slices/authslice'
+import HomeLayout from '../../layouts/HomeLayout'
 
 function CheckoutSuccess() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { state } = useLocation();
+    const dispatch = useDispatch()
+    const { state } = useLocation()
 
-  useEffect(() => {
-    if (!state) {
-      navigate("/");
-      return;
-    }
+    useEffect(() => {
+        // ✅ Refresh profile so subscription status updates immediately
+        dispatch(refreshProfile())
+    }, [])
 
-    document.title = "Checkout success - Learning Management System";
+    return (
+        <HomeLayout>
+            <div className='min-h-screen flex items-center justify-center px-4'>
+                <div className='bg-slate-800 rounded-2xl p-10 max-w-md w-full text-center border border-green-500/30'>
 
-    // ✅ Async function inside useEffect (ESLint-safe)
-    const fetchProfile = async () => {
-      try {
-        // Dispatch returns a promise if getProfile is a createAsyncThunk
-        const resultAction = await dispatch(getProfile());
+                    {/* Success Icon */}
+                    <div className='flex justify-center mb-6'>
+                        <div className='bg-green-500/20 p-5 rounded-full'>
+                            <FiCheckCircle className='text-6xl text-green-400' />
+                        </div>
+                    </div>
 
-        // Optional: handle success/failure
-        if (getProfile.fulfilled.match(resultAction)) {
-          console.log("Profile fetched successfully");
-        } else if (getProfile.rejected.match(resultAction)) {
-          console.error("Failed to fetch profile");
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      }
-    };
+                    <h1 className='text-3xl font-bold text-white mb-2'>Payment Successful!</h1>
+                    <p className='text-slate-400 mb-6'>
+                        Welcome to <span className='text-yellow-400 font-semibold'>LearnSphere Pro!</span> You now have full access to all courses.
+                    </p>
 
-    fetchProfile();
-  }, [state, navigate, dispatch]);
+                    {/* Course info */}
+                    {state?.title && (
+                        <div className='bg-slate-700 rounded-xl p-4 mb-6 text-left'>
+                            <p className='text-slate-400 text-xs uppercase tracking-wider mb-1'>Subscribed Course</p>
+                            <p className='text-white font-semibold capitalize'>{state.title}</p>
+                        </div>
+                    )}
 
-  return (
-    <div className="h-screen flex justify-center items-center">
-      <div className="lg:w-1/3 w-11/12 m-auto bg-white rounded-lg shadow-lg flex flex-col gap-4 justify-center items-center pb-4">
-        <Lottie animationData={animationData} loop height={300} width={300} />
-        <p className="px-4 text-xl tracking-wider text-slate-500 text-center">
-          Congratulations! Welcome to the course
-        </p>
-        <Link className="btn btn-primary w-[90%]" to="/">
-          Go to Home
-        </Link>
-      </div>
-    </div>
-  );
+                    {/* Benefits */}
+                    <div className='flex flex-col gap-3 mb-8 text-left'>
+                        {[
+                            '✅ Access to all courses unlocked',
+                            '✅ Watch video lectures anytime',
+                            '✅ Get course completion certificates',
+                            '✅ Book lessons with expert tutors',
+                        ].map((benefit, i) => (
+                            <p key={i} className='text-slate-300 text-sm'>{benefit}</p>
+                        ))}
+                    </div>
+
+                    {/* CTA Buttons */}
+                    <div className='flex flex-col gap-3'>
+                        <Link to='/courses'
+                            className='flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-xl transition-all'>
+                            <FiBook /> Start Learning Now
+                        </Link>
+                        <Link to='/certificate'
+                            className='flex items-center justify-center gap-2 border border-slate-600 text-slate-300 hover:bg-slate-700 py-3 rounded-xl transition-all'>
+                            <FiAward /> View My Certificate
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </HomeLayout>
+    )
 }
 
-export default CheckoutSuccess;
+export default CheckoutSuccess
