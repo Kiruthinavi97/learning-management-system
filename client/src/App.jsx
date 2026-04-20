@@ -25,6 +25,7 @@ import CheckoutFail from './pages/payments/CheckoutFail';
 import CheckoutSuccess from './pages/payments/CheckoutSuccess';
 import MyBookings from './pages/user/MyBookings';
 import Profile from './pages/user/Profile';
+import RequestDemo from './pages/RequestDemo'
 import StudentDashboard from './pages/user/StudentDashboard';
 import CourseCertificate from './pages/user/CourseCertificate';
 import BrowseTutors from './pages/tutor/BrowseTutors';
@@ -94,6 +95,7 @@ function App() {
         <Route path='/login' element={<LogIn />} />
         <Route path='/tutor/signup' element={<TutorSignUp />} />
         <Route path='/tutor/login' element={<TutorLogin />} />
+        <Route path='/demo' element={<RequestDemo />} />
       </Route>
 
       {/* Public routes */}

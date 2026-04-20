@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
-
 import axiosInstance from '../../Helpers/axiosInstance'
 
 const initialState = {
@@ -21,9 +20,13 @@ export const getRazorpayKey = createAsyncThunk("/razorpay/getKey", async () => {
     }
 })
 
-export const purchaseCourseBundle = createAsyncThunk("/purchaseCourse", async () => {
+// ✅ Updated to accept courseId and courseTitle for per-course payment
+export const purchaseCourseBundle = createAsyncThunk("/purchaseCourse", async (data = {}) => {
     try {
-        const response = await axiosInstance.post('/api/v1/payments/subscribe')
+        const response = await axiosInstance.post('/api/v1/payments/subscribe', {
+            courseId: data.courseId,
+            courseTitle: data.courseTitle
+        })
         return response.data
     } catch (error) {
         toast.error(error?.response?.data?.message)
@@ -31,13 +34,16 @@ export const purchaseCourseBundle = createAsyncThunk("/purchaseCourse", async ()
     }
 })
 
+// ✅ Updated to send courseId and courseTitle during verification
 export const verifyUserPayment = createAsyncThunk("/verifyPayment", async (data) => {
     try {
-        toast.loading("Wait! verify payment...", { position: 'top-center' })
+        toast.loading("Verifying payment...", { position: 'top-center' })
         const response = await axiosInstance.post('/api/v1/payments/verify', {
             payment_id: data.payment_id,
             razorpay_signature: data.razorpay_signature,
-            subscription_id: data.subscription_id
+            subscription_id: data.subscription_id,
+            courseId: data.courseId,
+            courseTitle: data.courseTitle
         })
         toast.dismiss();
         toast.success(response.data?.message)
@@ -69,10 +75,10 @@ export const getPaymentsRecord = createAsyncThunk("/paymentsRecord", async () =>
     }
 })
 
-export const cancelSubscription = createAsyncThunk("/cancel/subscribtion", async () => {
+export const cancelSubscription = createAsyncThunk("/cancel/subscription", async (courseId) => {
     try {
-        toast.loading("wait! Cancel subscribtion...", { position: 'top-center' })
-        const response = await axiosInstance.post("/api/v1/payments/unsubscribe")
+        toast.loading("Cancelling subscription...", { position: 'top-center' })
+        const response = await axiosInstance.post("/api/v1/payments/unsubscribe", { courseId })
         if (response.status === 200) {
             toast.dismiss();
             toast.success(response.data.message);
@@ -98,7 +104,8 @@ const razorpaySlice = createSlice({
             state.key = action?.payload?.key
         })
         builder.addCase(purchaseCourseBundle.fulfilled, (state, action) => {
-            state.subscription_id = action?.payload?.subscription_id
+            // ✅ Works with both order_id (new) and subscription_id (legacy)
+            state.subscription_id = action?.payload?.order_id || action?.payload?.subscription_id
         })
         builder.addCase(getPaymentsRecord.fulfilled, (state, action) => {
             state.allPayments = action?.payload?.allPayments

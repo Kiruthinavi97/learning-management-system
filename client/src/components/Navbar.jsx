@@ -84,6 +84,7 @@ function Navbar() {
             dropdown: [
                 { label: 'All Courses', to: '/courses', icon: <FiBook />, desc: 'Browse our full library' },
                 { label: 'Find Tutors', to: '/tutors', icon: <FiUsers />, desc: 'Connect with experts' },
+                { label: 'Request Demo', to: '/demo', icon: <FiPlay />, desc: 'See the platform live' },
             ]
         },
         {

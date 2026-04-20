@@ -23,17 +23,13 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: [true, 'Password is required'],
-        minLength: [8, 'Password must be at least 8 character '],
-        match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, 'Password must be contains at least one uppercase and one lowercase and one digit and one special character'],
+        minLength: [8, 'Password must be at least 8 character'],
+        match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, 'Password must contain at least one uppercase, one lowercase, one digit and one special character'],
         select: false
     },
     avatar: {
-        public_id: {
-            type: String
-        },
-        secure_url: {
-            type: String
-        }
+        public_id: { type: String },
+        secure_url: { type: String }
     },
     role: {
         type: String,
@@ -43,15 +39,26 @@ const userSchema = new Schema({
     forgotPasswordToken: String,
     forgotPasswordExpiry: Date,
     subscription: {
+        // Legacy field kept for backward compatibility
         id: String,
-        status: String
+        // Overall status - 'active' if subscribed to at least one course
+        status: String,
+        // ✅ Per-course subscriptions array
+        courses: [{
+            courseId: { type: String },
+            courseTitle: { type: String },
+            status: {
+                type: String,
+                enum: ['active', 'cancelled'],
+                default: 'active'
+            },
+            subscribedAt: { type: Date, default: Date.now }
+        }]
     }
 }, { timestamps: true })
 
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        return next()
-    }
+    if (!this.isModified('password')) return next()
     this.password = await bcrypt.hash(this.password, 10)
 })
 
@@ -66,10 +73,17 @@ userSchema.methods = {
         const resetToken = crypto.randomBytes(20).toString('hex')
         this.forgotPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
         this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000
-
         return resetToken
+    },
+    // ✅ Check if user is subscribed to a specific course
+    isSubscribedToCourse: function (courseId) {
+        if (this.role === 'ADMIN') return true
+        if (!this.subscription?.courses) return false
+        return this.subscription.courses.some(
+            c => c.courseId?.toString() === courseId?.toString() && c.status === 'active'
+        )
     }
 }
-const User = model('User', userSchema)
 
+const User = model('User', userSchema)
 export default User
