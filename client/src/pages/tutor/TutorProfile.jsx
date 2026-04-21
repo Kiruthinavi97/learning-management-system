@@ -182,19 +182,23 @@ function TutorProfile() {
                             
                             {/* NEW: Admin Student Assignment Input */}
                             {role === 'ADMIN' && (
-                                <div className='md:col-span-2 bg-slate-900 p-4 rounded-lg border border-yellow-500/50 mb-2'>
-                                    <label className='text-yellow-500 text-sm font-bold mb-2 block'>Admin: Assign Lesson to Student (Paste User ID) *</label>
-                                    <input 
-                                        type='text' 
-                                        required
-                                        placeholder='Example: 65f123abc456def789...'
-                                        className='w-full bg-slate-700 px-4 py-3 rounded-lg text-white outline-none border border-slate-600 focus:border-yellow-500'
-                                        value={booking.selectedStudentId}
-                                        onChange={(e) => setBooking({ ...booking, selectedStudentId: e.target.value })} 
-                                    />
-                                    <p className='text-slate-500 text-xs mt-2'>Since you are an Admin, you must specify which student this lesson belongs to.</p>
-                                </div>
-                            )}
+    <div className='md:col-span-2 bg-slate-900 p-4 rounded-lg border border-yellow-500/50 mb-2'>
+        <label className='text-yellow-500 text-sm font-bold mb-2 block'>
+            Assign to Student Email *
+        </label>
+        <input 
+            type='email' 
+            required
+            placeholder='Enter student email (e.g., jaini@example.com)'
+            className='w-full bg-slate-700 px-4 py-3 rounded-lg text-white outline-none border border-slate-600 focus:border-yellow-500'
+            value={booking.selectedStudentId}
+            onChange={(e) => setBooking({ ...booking, selectedStudentId: e.target.value })} 
+        />
+        <p className='text-slate-500 text-xs mt-2'>
+            Using the email prevents booking for the wrong person if students have the same name.
+        </p>
+    </div>
+)}
 
                             <div>
                                 <label className='text-slate-400 text-sm mb-1 block'>Date *</label>

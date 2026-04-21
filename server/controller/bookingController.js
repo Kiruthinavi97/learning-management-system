@@ -4,6 +4,7 @@ import User from '../models/userModel.js'
 import createError from '../utils/error.js'
 import Razorpay from 'razorpay'
 import crypto from 'crypto'
+import { isValidObjectId } from 'mongoose' // Recommended for safety
 
 // ✅ Lazy init for Razorpay
 function getRazorpay() {
@@ -16,15 +17,33 @@ function getRazorpay() {
     })
 }
 
+// ✅ Helper to resolve Student ID from Name/Email/ID
+const resolveStudentId = async (input, currentUser) => {
+    // If not an admin or no input provided, return logged-in user ID
+    if (currentUser.role !== 'ADMIN' || !input) return currentUser.id;
+
+    // If input is already a valid MongoDB ID, return it
+    if (isValidObjectId(input)) return input;
+
+    // Otherwise, search for the student by Name or Email
+    const student = await User.findOne({
+        $or: [
+            { name: input },
+            { email: input }
+        ]
+    });
+
+    if (!student) throw createError(404, "No student found with that name or email");
+    return student._id;
+};
+
 // ✅ Create Razorpay Order for booking
 export const createBookingOrder = async (req, res, next) => {
     try {
         const { tutorId, date, time, duration, notes, selectedStudentId } = req.body;
         
-        // Use selectedStudentId if Admin is booking for someone else, otherwise use logged-in user
-        const studentId = (req.user.role === 'ADMIN' && selectedStudentId) 
-                          ? selectedStudentId 
-                          : req.user.id;
+        // Use the helper to find the correct student ID
+        const studentId = await resolveStudentId(selectedStudentId, req.user);
 
         const tutor = await Tutor.findById(tutorId);
         if (!tutor) return next(createError(404, 'Tutor not found'));
@@ -37,9 +56,7 @@ export const createBookingOrder = async (req, res, next) => {
             status: { $in: ['pending', 'confirmed'] }
         });
         
-        if (conflict) {
-            return next(createError(400, 'This time slot is already booked.'));
-        }
+        if (conflict) return next(createError(400, 'This time slot is already booked.'));
 
         const amount = tutor.hourlyRate * (duration || 1);
         const razorpay = getRazorpay();
@@ -57,10 +74,11 @@ export const createBookingOrder = async (req, res, next) => {
             order,
             tutor: { name: tutor.name, subject: tutor.subject, hourlyRate: tutor.hourlyRate },
             amount,
-            bookingDetails: { tutorId, date, time, duration, notes, selectedStudentId }
+            // Pass the resolved studentId back so the verify step knows who it is
+            bookingDetails: { tutorId, date, time, duration, notes, resolvedStudentId: studentId }
         });
     } catch (error) {
-        return next(createError(500, error.message));
+        return next(createError(error.status || 500, error.message));
     }
 }
 
@@ -69,10 +87,8 @@ export const verifyBookingPayment = async (req, res, next) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingDetails } = req.body;
 
-        // Logic to determine student identity (handles Admin override)
-        const finalStudentId = (req.user.role === 'ADMIN' && bookingDetails.selectedStudentId) 
-                               ? bookingDetails.selectedStudentId 
-                               : req.user.id;
+        // Use the student ID resolved in the previous step
+        const finalStudentId = bookingDetails.resolvedStudentId || req.user.id;
 
         const sign = razorpay_order_id + '|' + razorpay_payment_id;
         const expectedSign = crypto
@@ -108,6 +124,8 @@ export const verifyBookingPayment = async (req, res, next) => {
             status: 'pending'
         });
 
+        // Update tutor earnings
+        if (!tutor.earnings) tutor.earnings = { total: 0, history: [] };
         tutor.earnings.total += amount;
         tutor.earnings.history.push({ amount, studentName: student.name, lessonId: booking._id });
         await tutor.save();
@@ -117,76 +135,6 @@ export const verifyBookingPayment = async (req, res, next) => {
             message: 'Booking confirmed and payment successful!',
             booking
         });
-    } catch (error) {
-        return next(createError(500, error.message));
-    }
-}
-
-// ✅ Fetch Student Bookings
-export const getStudentBookings = async (req, res, next) => {
-    try {
-        const bookings = await Booking.find({ student: req.user.id })
-            .populate('tutor', 'name subject avatar hourlyRate')
-            .sort({ createdAt: -1 });
-        res.status(200).json({ success: true, bookings });
-    } catch (error) {
-        return next(createError(500, error.message));
-    }
-}
-
-// ✅ Fetch Tutor Bookings
-export const getTutorBookings = async (req, res, next) => {
-    try {
-        const bookings = await Booking.find({ tutor: req.user.id })
-            .populate('student', 'name email avatar')
-            .sort({ createdAt: -1 });
-        res.status(200).json({ success: true, bookings });
-    } catch (error) {
-        return next(createError(500, error.message));
-    }
-}
-
-// ✅ Update Booking (Meeting link/Status)
-export const updateBookingStatus = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const { status, meetingLink } = req.body;
-        const booking = await Booking.findById(id);
-        if (!booking) return next(createError(404, 'Booking not found'));
-        
-        booking.status = status;
-        if (meetingLink) booking.meetingLink = meetingLink;
-        
-        await booking.save();
-        res.status(200).json({ success: true, message: `Booking ${status}`, booking });
-    } catch (error) {
-        return next(createError(500, error.message));
-    }
-}
-
-// ✅ Cancel Booking
-export const cancelBooking = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const booking = await Booking.findById(id);
-        if (!booking) return next(createError(404, 'Booking not found'));
-        
-        booking.status = 'cancelled';
-        await booking.save();
-        res.status(200).json({ success: true, message: 'Booking cancelled' });
-    } catch (error) {
-        return next(createError(500, error.message));
-    }
-}
-
-// ✅ Admin: Get All Bookings
-export const getAllBookings = async (req, res, next) => {
-    try {
-        const bookings = await Booking.find()
-            .populate('student', 'name email avatar')
-            .populate('tutor', 'name subject')
-            .sort({ createdAt: -1 });
-        res.status(200).json({ success: true, bookings });
     } catch (error) {
         return next(createError(500, error.message));
     }
