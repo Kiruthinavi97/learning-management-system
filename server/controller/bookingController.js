@@ -5,7 +5,7 @@ import createError from '../utils/error.js'
 import Razorpay from 'razorpay'
 import crypto from 'crypto'
 
-// ✅ Lazy init - prevents crash on server startup if env vars missing
+// ✅ Lazy init for Razorpay
 function getRazorpay() {
     if (!process.env.RAZORPAY_API_KEY || !process.env.RAZORPAY_API_SECRET) {
         throw new Error('Razorpay credentials not configured in environment variables')
@@ -16,14 +16,18 @@ function getRazorpay() {
     })
 }
 
-// Create Razorpay Order for booking
+// ✅ Create Razorpay Order for booking
 export const createBookingOrder = async (req, res, next) => {
     try {
-        const { tutorId, date, time, duration, notes } = req.body
-        const studentId = req.user.id
+        const { tutorId, date, time, duration, notes, selectedStudentId } = req.body;
+        
+        // Use selectedStudentId if Admin is booking for someone else, otherwise use logged-in user
+        const studentId = (req.user.role === 'ADMIN' && selectedStudentId) 
+                          ? selectedStudentId 
+                          : req.user.id;
 
-        const tutor = await Tutor.findById(tutorId)
-        if (!tutor) return next(createError(404, 'Tutor not found'))
+        const tutor = await Tutor.findById(tutorId);
+        if (!tutor) return next(createError(404, 'Tutor not found'));
 
         // Check time conflict
         const conflict = await Booking.findOne({
@@ -31,20 +35,21 @@ export const createBookingOrder = async (req, res, next) => {
             date,
             time,
             status: { $in: ['pending', 'confirmed'] }
-        })
+        });
+        
         if (conflict) {
-            return next(createError(400, 'This time slot is already booked. Please choose a different time.'))
+            return next(createError(400, 'This time slot is already booked.'));
         }
 
-        const amount = tutor.hourlyRate * (duration || 1)
-        const razorpay = getRazorpay()
+        const amount = tutor.hourlyRate * (duration || 1);
+        const razorpay = getRazorpay();
 
         const order = await razorpay.orders.create({
             amount: amount * 100,
             currency: 'INR',
             receipt: `booking_${Date.now()}`,
             notes: { tutorId, studentId: studentId.toString(), date, time, duration }
-        })
+        });
 
         res.status(200).json({
             success: true,
@@ -52,35 +57,42 @@ export const createBookingOrder = async (req, res, next) => {
             order,
             tutor: { name: tutor.name, subject: tutor.subject, hourlyRate: tutor.hourlyRate },
             amount,
-            bookingDetails: { tutorId, date, time, duration, notes }
-        })
+            bookingDetails: { tutorId, date, time, duration, notes, selectedStudentId }
+        });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
 
-// Verify payment and confirm booking
+// ✅ Verify payment and confirm booking
 export const verifyBookingPayment = async (req, res, next) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingDetails } = req.body
-        const studentId = req.user.id
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingDetails } = req.body;
 
-        const sign = razorpay_order_id + '|' + razorpay_payment_id
+        // Logic to determine student identity (handles Admin override)
+        const finalStudentId = (req.user.role === 'ADMIN' && bookingDetails.selectedStudentId) 
+                               ? bookingDetails.selectedStudentId 
+                               : req.user.id;
+
+        const sign = razorpay_order_id + '|' + razorpay_payment_id;
         const expectedSign = crypto
             .createHmac('sha256', process.env.RAZORPAY_API_SECRET)
             .update(sign)
-            .digest('hex')
+            .digest('hex');
 
         if (expectedSign !== razorpay_signature) {
-            return next(createError(400, 'Payment verification failed'))
+            return next(createError(400, 'Payment verification failed'));
         }
 
-        const tutor = await Tutor.findById(bookingDetails.tutorId)
-        const student = await User.findById(studentId)
-        const amount = tutor.hourlyRate * (bookingDetails.duration || 1)
+        const tutor = await Tutor.findById(bookingDetails.tutorId);
+        const student = await User.findById(finalStudentId);
+        
+        if (!student) return next(createError(404, 'Student user not found'));
+
+        const amount = tutor.hourlyRate * (bookingDetails.duration || 1);
 
         const booking = await Booking.create({
-            student: studentId,
+            student: finalStudentId,
             studentName: student.name,
             studentEmail: student.email,
             tutor: bookingDetails.tutorId,
@@ -94,80 +106,88 @@ export const verifyBookingPayment = async (req, res, next) => {
             orderId: razorpay_order_id,
             paymentStatus: 'paid',
             status: 'pending'
-        })
+        });
 
-        tutor.earnings.total += amount
-        tutor.earnings.history.push({ amount, studentName: student.name, lessonId: booking._id })
-        await tutor.save()
+        tutor.earnings.total += amount;
+        tutor.earnings.history.push({ amount, studentName: student.name, lessonId: booking._id });
+        await tutor.save();
 
         res.status(201).json({
             success: true,
             message: 'Booking confirmed and payment successful!',
             booking
-        })
+        });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
 
+// ✅ Fetch Student Bookings
 export const getStudentBookings = async (req, res, next) => {
     try {
         const bookings = await Booking.find({ student: req.user.id })
             .populate('tutor', 'name subject avatar hourlyRate')
-            .sort({ createdAt: -1 })
-        res.status(200).json({ success: true, bookings })
+            .sort({ createdAt: -1 });
+        res.status(200).json({ success: true, bookings });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
 
+// ✅ Fetch Tutor Bookings
 export const getTutorBookings = async (req, res, next) => {
     try {
         const bookings = await Booking.find({ tutor: req.user.id })
             .populate('student', 'name email avatar')
-            .sort({ createdAt: -1 })
-        res.status(200).json({ success: true, bookings })
+            .sort({ createdAt: -1 });
+        res.status(200).json({ success: true, bookings });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
 
+// ✅ Update Booking (Meeting link/Status)
 export const updateBookingStatus = async (req, res, next) => {
     try {
-        const { id } = req.params
-        const { status, meetingLink } = req.body
-        const booking = await Booking.findById(id)
-        if (!booking) return next(createError(404, 'Booking not found'))
-        booking.status = status
-        if (meetingLink) booking.meetingLink = meetingLink
-        await booking.save()
-        res.status(200).json({ success: true, message: `Booking ${status}`, booking })
+        const { id } = req.params;
+        const { status, meetingLink } = req.body;
+        const booking = await Booking.findById(id);
+        if (!booking) return next(createError(404, 'Booking not found'));
+        
+        booking.status = status;
+        if (meetingLink) booking.meetingLink = meetingLink;
+        
+        await booking.save();
+        res.status(200).json({ success: true, message: `Booking ${status}`, booking });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
 
+// ✅ Cancel Booking
 export const cancelBooking = async (req, res, next) => {
     try {
-        const { id } = req.params
-        const booking = await Booking.findById(id)
-        if (!booking) return next(createError(404, 'Booking not found'))
-        booking.status = 'cancelled'
-        await booking.save()
-        res.status(200).json({ success: true, message: 'Booking cancelled' })
+        const { id } = req.params;
+        const booking = await Booking.findById(id);
+        if (!booking) return next(createError(404, 'Booking not found'));
+        
+        booking.status = 'cancelled';
+        await booking.save();
+        res.status(200).json({ success: true, message: 'Booking cancelled' });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
 
+// ✅ Admin: Get All Bookings
 export const getAllBookings = async (req, res, next) => {
     try {
         const bookings = await Booking.find()
             .populate('student', 'name email avatar')
             .populate('tutor', 'name subject')
-            .sort({ createdAt: -1 })
-        res.status(200).json({ success: true, bookings })
+            .sort({ createdAt: -1 });
+        res.status(200).json({ success: true, bookings });
     } catch (error) {
-        return next(createError(500, error.message))
+        return next(createError(500, error.message));
     }
 }
