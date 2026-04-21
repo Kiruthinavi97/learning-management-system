@@ -22,7 +22,7 @@ function AdminSubscribers() {
 
     useEffect(() => { fetchPayments() }, [])
 
-    const totalRevenue = payments.length * 499
+        const totalRevenue = payments.reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
     return (
         <HomeLayout>
@@ -84,7 +84,9 @@ function AdminSubscribers() {
                                                         {p.userId?.name?.charAt(0)?.toUpperCase() || 'U'}
                                                     </div>
                                                     <div>
-                                                        <p className='text-white text-sm font-medium capitalize'>{p.userId?.name || 'Unknown'}</p>
+                                                        <p className='text-white text-sm font-medium capitalize'>
+                                                            {p.userId?.name || p.userName || p.customer_name || 'Unknown'}
+                                                        </p>
                                                         <p className='text-slate-400 text-xs'>{p.userId?.email || ''}</p>
                                                     </div>
                                                 </div>
