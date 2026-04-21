@@ -103,17 +103,18 @@ Before running this project locally, ensure you have the following installed:
    password : Demouser@26
 
 For Subcription you can use Netbanking ->select any bank name -> it will proceed (since it is dummy payment module)
-or choose Cards -> Enter this dummy card details :4100 2800 0000 1007 -> any CVV and expiry date with furture date
+or choose Cards -> Enter this dummy card details :4100 2800 0000 1007 -> any CVV and expiry date with furture date 
+or you can use these test card details in this website  https://razorpay.com/docs/payments/payments/test-card-details/
 
 5. Demo Admin account credentials
-   Username  :demouser
-   email id : demouser.26@gmail.com
-   password : Demouser@26
+   Username  :demoadmin
+   email id : demoadmin.26@gmail.com
+   password : Demoadmin@26
    
 6. Demo Tutor account crendentials
-   Username  :demouser
-   email id : demouser.26@gmail.com
-   password : Demouser@26
+   Username  :demotutor
+   email id : demotutor.26@gmail.com
+   password : Demotutor@26
 ## Subscription Management
 
 - Users can purchase subscriptions for accessing premium content or features.
