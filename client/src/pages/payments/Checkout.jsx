@@ -60,6 +60,12 @@ function Checkout() {
             description: `Course: ${state?.title}`,
             theme: { color: '#EAB308' },
             prefill: { email: userdata?.email, name: userdata?.name },
+            method: {
+        card: true,
+        upi: true,
+        netbanking: true,
+        wallet: true
+    },
             handler: async function (response) {
                 const paymentDetails = {
                     payment_id: response.razorpay_payment_id,
