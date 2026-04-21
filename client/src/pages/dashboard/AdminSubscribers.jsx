@@ -78,19 +78,23 @@ function AdminSubscribers() {
                                     {payments.map((p, i) => (
                                         <tr key={p._id} className='border-t border-slate-700 hover:bg-slate-700/30 transition-all'>
                                             <td className='px-6 py-4 text-slate-400 text-sm'>{i + 1}</td>
-                                            <td className='px-6 py-4'>
-                                                <div className='flex items-center gap-3'>
-                                                    <div className='w-8 h-8 rounded-full bg-yellow-400/20 flex items-center justify-center text-yellow-400 font-bold text-xs'>
-                                                        {p.userId?.name?.charAt(0)?.toUpperCase() || 'U'}
-                                                    </div>
-                                                    <div>
-                                                        <p className='text-white text-sm font-medium capitalize'>
-                                                            {p.userId?.name || p.userName || p.customer_name || 'Unknown'}
-                                                        </p>
-                                                        <p className='text-slate-400 text-xs'>{p.userId?.email || ''}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                           <td className='px-6 py-4'>
+    <div className='flex items-center gap-3'>
+        {/* Fix: Use a fallback for the avatar initial */}
+        <div className='w-8 h-8 rounded-full bg-yellow-400/20 flex items-center justify-center text-yellow-400 font-bold text-xs'>
+            {p.userId?.name ? p.userId.name.charAt(0).toUpperCase() : 'U'}
+        </div>
+        <div>
+            {/* Fix: Check for userId existence */}
+            <p className='text-white text-sm font-medium capitalize'>
+                {p.userId?.name || 'Deleted User'}
+            </p>
+            <p className='text-slate-400 text-xs'>
+                {p.userId?.email || 'N/A'}
+            </p>
+        </div>
+    </div>
+</td>
                                             <td className='px-6 py-4'>
                                                 <span className='text-yellow-400 text-sm capitalize'>{p.courseTitle || 'N/A'}</span>
                                             </td>
