@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiSearch, FiStar, FiDollarSign, FiBook } from 'react-icons/fi'
+import { FiSearch, FiStar, FiBook } from 'react-icons/fi'
+import { BsCurrencyRupee } from 'react-icons/bs'
 import axiosInstance from '../../Helpers/axiosInstance'
 import HomeLayout from '../../layouts/HomeLayout'
 
@@ -95,8 +96,9 @@ function BrowseTutors() {
                                     ))}
                                 </div>
                                 <div className='flex justify-between items-center mt-auto'>
-                                    <div className='flex items-center gap-1 text-green-400 font-semibold'>
-                                        <FiDollarSign />
+                                    {/* ✅ Rupee symbol only — no dollar sign */}
+                                    <div className='flex items-center gap-0.5 text-green-400 font-semibold'>
+                                        <BsCurrencyRupee />
                                         <span>₹{tutor.hourlyRate}/hr</span>
                                     </div>
                                     <div className='flex items-center gap-1 text-slate-400 text-sm'>

@@ -14,6 +14,7 @@ import EditCourse from './pages/course/EditCourse';
 import AddCourseLecture from './pages/dashboard/AddCourseLecture';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
 import AdminUsers from './pages/dashboard/AdminUsers';
+import AdminSubscribers from './pages/dashboard/AdminSubscribers';
 import CourseLectures from './pages/dashboard/CourseLectures';
 import EditCourseLecture from './pages/dashboard/EditCourseLecture';
 import HomePage from './pages/HomePage';
@@ -25,7 +26,6 @@ import CheckoutFail from './pages/payments/CheckoutFail';
 import CheckoutSuccess from './pages/payments/CheckoutSuccess';
 import MyBookings from './pages/user/MyBookings';
 import Profile from './pages/user/Profile';
-import RequestDemo from './pages/RequestDemo'
 import StudentDashboard from './pages/user/StudentDashboard';
 import CourseCertificate from './pages/user/CourseCertificate';
 import BrowseTutors from './pages/tutor/BrowseTutors';
@@ -34,6 +34,7 @@ import TutorDashboard from './pages/tutor/TutorDashboard';
 import TutorLogin from './pages/tutor/TutorLogin';
 import TutorProfile from './pages/tutor/TutorProfile';
 import TutorSignUp from './pages/tutor/TutorSignUp';
+import RequestDemo from './pages/RequestDemo';
 
 function App() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function App() {
       '/': 'Learning Management System',
       '/about': 'About - LMS',
       '/contact': 'Contact - LMS',
+      '/demo': 'Request Demo - LMS',
       '/signup': 'Sign Up - LMS',
       '/login': 'Log In - LMS',
       '/courses': 'All Courses - LMS',
@@ -54,6 +56,7 @@ function App() {
       '/course/create': 'Create Course - LMS',
       '/admin/dashboard': 'Admin Dashboard - LMS',
       '/admin/users': 'User Management - LMS',
+      '/admin/subscribers': 'Subscribers - LMS',
       '/profile': 'Profile - LMS',
       '/profile/changePassword': 'Change Password - LMS',
       '/my-bookings': 'My Bookings - LMS',
@@ -89,29 +92,28 @@ function App() {
       <Route path='*' element={<NotFound />} />
       <Route path='/' element={<HomePage />} />
 
-      {/* Unprotected - redirect if already logged in */}
       <Route element={<UnprotectedRoute />}>
         <Route path='/signup' element={<SignUp />} />
         <Route path='/login' element={<LogIn />} />
         <Route path='/tutor/signup' element={<TutorSignUp />} />
         <Route path='/tutor/login' element={<TutorLogin />} />
-        <Route path='/demo' element={<RequestDemo />} />
       </Route>
 
-      {/* Public routes */}
+      {/* Public */}
       <Route path='/reset-password/:resetToken' element={<ResetPassword />} />
       <Route path='/about' element={<About />} />
       <Route path='/contact' element={<Contact />} />
+      <Route path='/demo' element={<RequestDemo />} />
       <Route path='/courses' element={<CourseList />} />
       <Route path='/course/description' element={<CourseDescription />} />
       <Route path='/tutors' element={<BrowseTutors />} />
       <Route path='/tutor/:id' element={<TutorProfile />} />
 
-      {/* Tutor routes */}
+      {/* Tutor */}
       <Route path='/tutor/dashboard' element={<TutorDashboard />} />
       <Route path='/tutor/bookings' element={<TutorBookings />} />
 
-      {/* Admin only */}
+      {/* Admin */}
       <Route element={<RequiredAuth allowedRole={['ADMIN']} />}>
         <Route path='/course/create' element={<CreateCourse />} />
         <Route path='/course/:name/:id/editCourse' element={<EditCourse />} />
@@ -119,9 +121,10 @@ function App() {
         <Route path='/course/:name/:id/lectures/editlecture' element={<EditCourseLecture />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
         <Route path='/admin/users' element={<AdminUsers />} />
+        <Route path='/admin/subscribers' element={<AdminSubscribers />} />
       </Route>
 
-      {/* Student protected */}
+      {/* Student */}
       <Route element={<RequiredAuth allowedRole={['ADMIN', 'USER']} />}>
         <Route path='/dashboard' element={<StudentDashboard />} />
         <Route path='/profile' element={<Profile />} />

@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
-import { FiSearch, FiChevronDown, FiMenu, FiX, FiUser, FiLogOut, FiBook, FiUsers, FiAward, FiCalendar, FiSettings, FiGrid, FiBell, FiStar, FiPlay } from 'react-icons/fi'
+import { FiSearch, FiChevronDown, FiMenu, FiX, FiUser, FiLogOut, FiBook, FiUsers, FiAward, FiCalendar, FiSettings, FiGrid, FiBell, FiStar, FiPlay, FiInfo, FiMail, FiHelpCircle, FiFileText, FiBarChart2 } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-
 import { logout } from '../Redux/slices/authslice'
 import { tutorLogout } from '../Redux/slices/tutorSlice'
 
@@ -36,7 +35,8 @@ function Navbar() {
     const avatar = useSelector((state) => state?.auth?.data?.avatar?.secure_url)
     const name = useSelector((state) => state?.auth?.data?.name)
     const subscription = useSelector((state) => state?.auth?.data?.subscription)
-    const isSubscribed = subscription?.status === 'active'
+    const subscribedCourses = subscription?.courses?.filter(c => c.status === 'active') || []
+    const hasAnyCourse = subscribedCourses.length > 0
 
     const isTutorLoggedIn = useSelector((state) => state?.tutor?.isLoggedIn)
     const tutorAvatar = useSelector((state) => state?.tutor?.data?.avatar?.secure_url)
@@ -48,9 +48,7 @@ function Navbar() {
         setShowNotifications(false)
     }, [location.pathname])
 
-    function isActive(path) {
-        return location.pathname === path
-    }
+    function isActive(path) { return location.pathname === path }
 
     async function onLogout() {
         await dispatch(logout())
@@ -74,37 +72,123 @@ function Navbar() {
 
     const notifications = [
         { icon: <FiBook className='text-yellow-400' />, text: 'New course available: React Advanced', time: '2h ago' },
-        { icon: <FiStar className='text-green-400' />, text: 'Your review was helpful to 5 students', time: '1d ago' },
-        { icon: <FiCalendar className='text-blue-400' />, text: 'Upcoming lesson reminder tomorrow', time: '1d ago' },
+        { icon: <FiStar className='text-green-400' />, text: 'Your review helped 5 students', time: '1d ago' },
+        { icon: <FiCalendar className='text-blue-400' />, text: 'Lesson reminder for tomorrow', time: '1d ago' },
     ]
 
-    const navItems = [
-        {
-            label: 'Courses',
-            dropdown: [
-                { label: 'All Courses', to: '/courses', icon: <FiBook />, desc: 'Browse our full library' },
-                { label: 'Find Tutors', to: '/tutors', icon: <FiUsers />, desc: 'Connect with experts' },
-                { label: 'Request Demo', to: '/demo', icon: <FiPlay />, desc: 'See the platform live' },
+    // Mega dropdown configs
+    const megaMenus = {
+        Courses: {
+            sections: [
+                {
+                    title: 'Learn',
+                    items: [
+                        { label: 'All Courses', to: '/courses', icon: <FiBook />, desc: 'Browse full library' },
+                        { label: 'Find Tutors', to: '/tutors', icon: <FiUsers />, desc: 'Connect with experts' },
+                    ]
+                },
+                {
+                    title: 'Quick Links',
+                    items: [
+                        { label: 'My Dashboard', to: '/dashboard', icon: <FiGrid />, desc: 'Your learning progress' },
+                        { label: 'My Bookings', to: '/my-bookings', icon: <FiCalendar />, desc: 'Scheduled lessons' },
+                    ]
+                }
             ]
         },
-        {
-            label: 'Resources',
-            dropdown: [
-                { label: 'About Us', to: '/about', icon: <FiAward />, desc: 'Our story and mission' },
-                { label: 'Contact Us', to: '/contact', icon: <FiUser />, desc: 'Get in touch' },
-            ]
+        Resources: {
+            sections: [
+                {
+                    title: 'Learn More',
+                    items: [
+                        { label: 'Blog', to: '/about', icon: <FiFileText />, desc: 'Tips and insights' },
+                        { label: 'Help Center', to: '/contact', icon: <FiHelpCircle />, desc: 'Get support' },
+                        { label: 'ROI Calculator', to: '/about', icon: <FiBarChart2 />, desc: 'Measure your returns' },
+                    ]
+                },
+                {
+                    title: 'Platform',
+                    items: [
+                        { label: 'Request a Demo', to: '/demo', icon: <FiPlay />, desc: 'See it in action' },
+                        { label: 'Contact Us', to: '/contact', icon: <FiMail />, desc: 'Reach our team' },
+                    ]
+                }
+            ],
+            featured: {
+                title: 'Start Learning Today',
+                desc: 'Join 10,000+ students already learning on LearnSphere',
+                cta: 'Get Started Free',
+                to: '/signup'
+            }
         },
-    ]
+        About: {
+            sections: [
+                {
+                    title: 'Company',
+                    items: [
+                        { label: 'About Us', to: '/about', icon: <FiInfo />, desc: 'Our story & mission' },
+                        { label: 'Contact Us', to: '/contact', icon: <FiMail />, desc: 'Get in touch' },
+                        { label: 'Awards & Recognition', to: '/about', icon: <FiAward />, desc: 'Our achievements' },
+                    ]
+                }
+            ],
+            featured: {
+                title: 'Customer Success',
+                desc: 'Meet the team responsible for a 96% satisfaction rate',
+                cta: 'Read More',
+                to: '/about'
+            }
+        }
+    }
+
+    function MegaMenu({ menuKey }) {
+        const menu = megaMenus[menuKey]
+        if (!menu) return null
+        return (
+            <div className='absolute top-full left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl py-6 px-6 mt-1 min-w-[600px] flex gap-8'>
+                {menu.sections.map((section, si) => (
+                    <div key={si} className='flex-1'>
+                        <p className='text-slate-500 text-xs uppercase tracking-widest mb-3 font-semibold'>{section.title}</p>
+                        <div className='flex flex-col gap-1'>
+                            {section.items.map((item) => (
+                                <Link key={item.label} to={item.to}
+                                    className={`flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all hover:bg-slate-700 ${isActive(item.to) ? 'bg-slate-700 text-yellow-400' : 'text-slate-300 hover:text-yellow-400'}`}>
+                                    <div className='bg-slate-700 group-hover:bg-yellow-400/20 p-2 rounded-lg flex-shrink-0 text-yellow-400/70 mt-0.5'>
+                                        {item.icon}
+                                    </div>
+                                    <div>
+                                        <p className='font-medium text-sm'>{item.label}</p>
+                                        <p className='text-xs text-slate-500'>{item.desc}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+                {menu.featured && (
+                    <div className='w-48 bg-slate-700/50 rounded-xl p-4 flex flex-col justify-between border border-slate-600'>
+                        <div>
+                            <p className='text-white font-semibold text-sm mb-2'>{menu.featured.title}</p>
+                            <p className='text-slate-400 text-xs leading-relaxed'>{menu.featured.desc}</p>
+                        </div>
+                        <Link to={menu.featured.to}
+                            className='mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs py-2 px-3 rounded-lg text-center transition-all'>
+                            {menu.featured.cta} →
+                        </Link>
+                    </div>
+                )}
+            </div>
+        )
+    }
 
     return (
         <nav className='bg-slate-900 border-b border-slate-700/60 sticky top-0 z-50'>
-
-            {/* Promo bar for non-subscribers */}
-            {isLoggedIn && !isSubscribed && role !== 'ADMIN' && (
+            {/* Promo bar */}
+            {isLoggedIn && !hasAnyCourse && role !== 'ADMIN' && (
                 <div className='bg-yellow-500 text-black text-center py-1.5 text-xs font-semibold flex items-center justify-center gap-3'>
                     <FiStar />
-                    <span>Unlock all courses for just ₹499/year!</span>
-                    <Link to='/courses' className='underline font-bold hover:text-slate-800'>Subscribe Now →</Link>
+                    <span>Enroll in any course for just ₹499!</span>
+                    <Link to='/courses' className='underline font-bold hover:text-slate-800'>Browse Courses →</Link>
                 </div>
             )}
 
@@ -115,42 +199,26 @@ function Navbar() {
                     <Link to='/' className='flex items-center gap-2.5 flex-shrink-0'>
                         <LMSLogo />
                         <div className='leading-tight'>
-                            <span className='text-white font-bold text-lg tracking-tight'>
-                                Learn<span className='text-yellow-400'>Sphere</span>
-                            </span>
+                            <span className='text-white font-bold text-lg tracking-tight'>Learn<span className='text-yellow-400'>Sphere</span></span>
                             <p className='text-slate-500 text-xs hidden lg:block leading-none'>Online Learning Platform</p>
                         </div>
                     </Link>
 
                     {/* Desktop Nav */}
                     <div className='hidden lg:flex items-center gap-1'>
-                        <Link to='/'
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive('/') ? 'text-yellow-400 bg-slate-800' : 'text-slate-300 hover:text-yellow-400 hover:bg-slate-800'}`}>
+                        <Link to='/' className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive('/') ? 'text-yellow-400 bg-slate-800' : 'text-slate-300 hover:text-yellow-400 hover:bg-slate-800'}`}>
                             Home
                         </Link>
 
-                        {navItems.map((item) => (
-                            <div key={item.label} className='relative'
-                                onMouseEnter={() => setActiveDropdown(item.label)}
+                        {['Courses', 'Resources', 'About'].map((menuKey) => (
+                            <div key={menuKey} className='relative'
+                                onMouseEnter={() => setActiveDropdown(menuKey)}
                                 onMouseLeave={() => setActiveDropdown(null)}>
-                                <button className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-slate-800 ${activeDropdown === item.label ? 'text-yellow-400 bg-slate-800' : 'text-slate-300 hover:text-yellow-400'}`}>
-                                    {item.label}
-                                    <FiChevronDown className={`text-xs transition-transform duration-200 ${activeDropdown === item.label ? 'rotate-180' : ''}`} />
+                                <button className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-slate-800 ${activeDropdown === menuKey ? 'text-yellow-400 bg-slate-800' : 'text-slate-300 hover:text-yellow-400'}`}>
+                                    {menuKey}
+                                    <FiChevronDown className={`text-xs transition-transform duration-200 ${activeDropdown === menuKey ? 'rotate-180' : ''}`} />
                                 </button>
-                                {activeDropdown === item.label && (
-                                    <div className='absolute top-full left-0 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 w-56 mt-1'>
-                                        {item.dropdown.map((d) => (
-                                            <Link key={d.label} to={d.to}
-                                                className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-700 text-sm transition-all rounded-lg mx-1 ${isActive(d.to) ? 'text-yellow-400 bg-slate-700' : 'text-slate-300 hover:text-yellow-400'}`}>
-                                                <span className='text-yellow-400/70 mt-0.5'>{d.icon}</span>
-                                                <div>
-                                                    <p className='font-medium'>{d.label}</p>
-                                                    <p className='text-xs text-slate-500'>{d.desc}</p>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
+                                {activeDropdown === menuKey && <MegaMenu menuKey={menuKey} />}
                             </div>
                         ))}
 
@@ -159,12 +227,13 @@ function Navbar() {
                                 onMouseEnter={() => setActiveDropdown('admin')}
                                 onMouseLeave={() => setActiveDropdown(null)}>
                                 <button className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-slate-800 ${activeDropdown === 'admin' ? 'text-yellow-400 bg-slate-800' : 'text-slate-300'}`}>
-                                    Admin <FiChevronDown className={`text-xs transition-transform duration-200 ${activeDropdown === 'admin' ? 'rotate-180' : ''}`} />
+                                    Admin <FiChevronDown className={`text-xs transition-transform ${activeDropdown === 'admin' ? 'rotate-180' : ''}`} />
                                 </button>
                                 {activeDropdown === 'admin' && (
                                     <div className='absolute top-full left-0 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 w-52 mt-1'>
-                                        <Link to='/admin/dashboard' className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-1 ${isActive('/admin/dashboard') ? 'text-yellow-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700 hover:text-yellow-400'}`}><FiSettings className='text-yellow-400/70' /> Dashboard</Link>
-                                        <Link to='/admin/users' className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-1 ${isActive('/admin/users') ? 'text-yellow-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700 hover:text-yellow-400'}`}><FiUsers className='text-yellow-400/70' /> Manage Users</Link>
+                                        <Link to='/admin/dashboard' className='flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 text-sm rounded-lg mx-1'><FiSettings className='text-yellow-400/70' /> Dashboard</Link>
+                                        <Link to='/admin/users' className='flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 text-sm rounded-lg mx-1'><FiUsers className='text-yellow-400/70' /> Manage Users</Link>
+                                        <Link to='/admin/subscribers' className='flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 text-sm rounded-lg mx-1'><FiBook className='text-yellow-400/70' /> Subscribers</Link>
                                         <Link to='/course/create' className='flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 text-sm rounded-lg mx-1'><FiBook className='text-yellow-400/70' /> Create Course</Link>
                                     </div>
                                 )}
@@ -176,7 +245,7 @@ function Navbar() {
                                 onMouseEnter={() => setActiveDropdown('tutor')}
                                 onMouseLeave={() => setActiveDropdown(null)}>
                                 <button className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all hover:bg-slate-800 ${activeDropdown === 'tutor' ? 'text-yellow-400 bg-slate-800' : 'text-slate-300'}`}>
-                                    Tutor <FiChevronDown className={`text-xs transition-transform duration-200 ${activeDropdown === 'tutor' ? 'rotate-180' : ''}`} />
+                                    Tutor <FiChevronDown className={`text-xs transition-transform ${activeDropdown === 'tutor' ? 'rotate-180' : ''}`} />
                                 </button>
                                 {activeDropdown === 'tutor' && (
                                     <div className='absolute top-full left-0 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 w-52 mt-1'>
@@ -190,13 +259,12 @@ function Navbar() {
 
                     {/* Right Side */}
                     <div className='flex items-center gap-2'>
-
                         {/* Search */}
                         <div className='relative'>
                             {searchOpen ? (
                                 <form onSubmit={handleSearch} className='flex items-center gap-2'>
                                     <input autoFocus type='text' placeholder='Search courses...'
-                                        className='bg-slate-800 border border-slate-600 text-white px-4 py-2 rounded-lg text-sm outline-none focus:border-yellow-400 w-48 transition-all'
+                                        className='bg-slate-800 border border-slate-600 text-white px-4 py-2 rounded-lg text-sm outline-none focus:border-yellow-400 w-48'
                                         value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                                     <button type='button' onClick={() => setSearchOpen(false)} className='text-slate-400 hover:text-white p-1'><FiX /></button>
                                 </form>
@@ -207,7 +275,7 @@ function Navbar() {
                             )}
                         </div>
 
-                        {/* Notification Bell */}
+                        {/* Bell */}
                         {(isLoggedIn || isTutorLoggedIn) && (
                             <div className='relative'>
                                 <button onClick={() => setShowNotifications(!showNotifications)}
@@ -217,22 +285,16 @@ function Navbar() {
                                 </button>
                                 {showNotifications && (
                                     <div className='absolute top-full right-0 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 w-80 mt-1'>
-                                        <div className='px-4 py-2 border-b border-slate-700 flex justify-between items-center mb-1'>
+                                        <div className='px-4 py-2 border-b border-slate-700 flex justify-between mb-1'>
                                             <p className='text-white font-semibold text-sm'>Notifications</p>
                                             <span className='text-xs text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded-full'>{notifications.length} new</span>
                                         </div>
                                         {notifications.map((n, i) => (
-                                            <div key={i} className='flex items-start gap-3 px-4 py-3 hover:bg-slate-700 transition-all cursor-pointer rounded-lg mx-1'>
+                                            <div key={i} className='flex items-start gap-3 px-4 py-3 hover:bg-slate-700 rounded-lg mx-1 cursor-pointer'>
                                                 <div className='mt-0.5 flex-shrink-0'>{n.icon}</div>
-                                                <div className='flex-1'>
-                                                    <p className='text-slate-300 text-xs leading-relaxed'>{n.text}</p>
-                                                    <p className='text-slate-500 text-xs mt-0.5'>{n.time}</p>
-                                                </div>
+                                                <div><p className='text-slate-300 text-xs'>{n.text}</p><p className='text-slate-500 text-xs mt-0.5'>{n.time}</p></div>
                                             </div>
                                         ))}
-                                        <div className='px-4 pt-2 border-t border-slate-700 mt-1'>
-                                            <button className='text-yellow-400 text-xs hover:underline w-full text-center py-1'>View all notifications</button>
-                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -241,17 +303,13 @@ function Navbar() {
                         {/* Guest */}
                         {!isLoggedIn && !isTutorLoggedIn && (
                             <div className='hidden lg:flex items-center gap-2'>
-                                <Link to='/login' className='text-slate-300 hover:text-yellow-400 px-3 py-2 text-sm font-medium transition-all hover:bg-slate-800 rounded-lg'>Login</Link>
-                                <Link to='/signup' className='bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg text-sm transition-all'>
-                                    Get Started Free
-                                </Link>
-                                <Link to='/tutor/signup' className='border border-yellow-500/50 text-yellow-400 hover:bg-yellow-500 hover:text-black font-semibold px-4 py-2 rounded-lg text-sm transition-all'>
-                                    Become a Tutor
-                                </Link>
+                                <Link to='/login' className='text-slate-300 hover:text-yellow-400 px-3 py-2 text-sm font-medium hover:bg-slate-800 rounded-lg'>Login</Link>
+                                <Link to='/signup' className='bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg text-sm'>Get Started Free</Link>
+                                <Link to='/demo' className='border border-yellow-500/50 text-yellow-400 hover:bg-yellow-500 hover:text-black font-semibold px-4 py-2 rounded-lg text-sm'>Request Demo</Link>
                             </div>
                         )}
 
-                        {/* Student profile */}
+                        {/* Student */}
                         {isLoggedIn && (
                             <div className='relative'
                                 onMouseEnter={() => setActiveDropdown('profile')}
@@ -260,8 +318,8 @@ function Navbar() {
                                     <img src={avatar} className='w-7 h-7 rounded-full object-cover ring-2 ring-yellow-400/50' />
                                     <div className='hidden lg:block text-left'>
                                         <p className='text-white text-xs font-medium capitalize leading-tight'>{name?.split(' ')[0]}</p>
-                                        <p className={`text-xs leading-tight ${role === 'ADMIN' ? 'text-purple-400' : isSubscribed ? 'text-yellow-400' : 'text-slate-400'}`}>
-                                            {role === 'ADMIN' ? '👑 Admin' : isSubscribed ? '⭐ Pro' : 'Free'}
+                                        <p className={`text-xs leading-tight ${role === 'ADMIN' ? 'text-purple-400' : hasAnyCourse ? 'text-yellow-400' : 'text-slate-400'}`}>
+                                            {role === 'ADMIN' ? '👑 Admin' : hasAnyCourse ? '⭐ Enrolled' : 'Free'}
                                         </p>
                                     </div>
                                     <FiChevronDown className={`text-slate-400 text-xs transition-transform ${activeDropdown === 'profile' ? 'rotate-180' : ''}`} />
@@ -273,8 +331,8 @@ function Navbar() {
                                                 <img src={avatar} className='w-10 h-10 rounded-full object-cover ring-2 ring-yellow-400/50' />
                                                 <div>
                                                     <p className='text-white font-semibold text-sm capitalize'>{name}</p>
-                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400' : isSubscribed ? 'bg-yellow-400/20 text-yellow-400' : 'bg-slate-700 text-slate-400'}`}>
-                                                        {role === 'ADMIN' ? '👑 Administrator' : isSubscribed ? '⭐ Pro Member' : '🔓 Free Member'}
+                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400' : hasAnyCourse ? 'bg-yellow-400/20 text-yellow-400' : 'bg-slate-700 text-slate-400'}`}>
+                                                        {role === 'ADMIN' ? '👑 Administrator' : hasAnyCourse ? `⭐ ${subscribedCourses.length} Course(s)` : '🔓 Free Member'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -283,10 +341,10 @@ function Navbar() {
                                         <Link to='/profile' className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-1 ${isActive('/profile') ? 'text-yellow-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700 hover:text-yellow-400'}`}><FiUser className='text-yellow-400/70' /> My Profile</Link>
                                         <Link to='/my-bookings' className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-1 ${isActive('/my-bookings') ? 'text-yellow-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700 hover:text-yellow-400'}`}><FiCalendar className='text-yellow-400/70' /> My Bookings</Link>
                                         <Link to='/certificate' className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg mx-1 ${isActive('/certificate') ? 'text-yellow-400 bg-slate-700' : 'text-slate-300 hover:bg-slate-700 hover:text-yellow-400'}`}><FiAward className='text-yellow-400/70' /> My Certificate</Link>
-                                        {!isSubscribed && role !== 'ADMIN' && (
-                                            <div className='mx-1 my-1.5 px-0'>
-                                                <Link to='/courses' className='flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 rounded-lg text-sm transition-all'>
-                                                    <FiStar /> Upgrade to Pro
+                                        {!hasAnyCourse && role !== 'ADMIN' && (
+                                            <div className='mx-1 my-1.5'>
+                                                <Link to='/courses' className='flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 rounded-lg text-sm'>
+                                                    <FiStar /> Browse Courses — ₹499
                                                 </Link>
                                             </div>
                                         )}
@@ -298,7 +356,7 @@ function Navbar() {
                             </div>
                         )}
 
-                        {/* Tutor profile */}
+                        {/* Tutor */}
                         {isTutorLoggedIn && (
                             <div className='relative'
                                 onMouseEnter={() => setActiveDropdown('tutorProfile')}
@@ -312,15 +370,10 @@ function Navbar() {
                                     <FiChevronDown className={`text-slate-400 text-xs transition-transform ${activeDropdown === 'tutorProfile' ? 'rotate-180' : ''}`} />
                                 </button>
                                 {activeDropdown === 'tutorProfile' && (
-                                    <div className='absolute top-full right-0 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-1.5 w-56 mt-1'>
+                                    <div className='absolute top-full right-0 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-1.5 w-52 mt-1'>
                                         <div className='px-4 py-3 border-b border-slate-700 mb-1'>
-                                            <div className='flex items-center gap-3'>
-                                                <img src={tutorAvatar} className='w-10 h-10 rounded-full object-cover ring-2 ring-yellow-400/50' />
-                                                <div>
-                                                    <p className='text-white font-semibold text-sm capitalize'>{tutorName}</p>
-                                                    <span className='text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400'>🎓 Tutor</span>
-                                                </div>
-                                            </div>
+                                            <p className='text-white font-semibold text-sm capitalize'>{tutorName}</p>
+                                            <span className='text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400'>🎓 Tutor</span>
                                         </div>
                                         <Link to='/tutor/dashboard' className='flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 text-sm rounded-lg mx-1'><FiGrid className='text-yellow-400/70' /> Dashboard</Link>
                                         <Link to='/tutor/bookings' className='flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700 hover:text-yellow-400 text-sm rounded-lg mx-1'><FiCalendar className='text-yellow-400/70' /> My Bookings</Link>
@@ -332,37 +385,31 @@ function Navbar() {
                             </div>
                         )}
 
-                        {/* Mobile button */}
-                        <button onClick={() => setMobileOpen(!mobileOpen)} className='lg:hidden text-slate-300 hover:text-yellow-400 p-2 rounded-lg hover:bg-slate-800 transition-all'>
+                        <button onClick={() => setMobileOpen(!mobileOpen)} className='lg:hidden text-slate-300 hover:text-yellow-400 p-2 rounded-lg hover:bg-slate-800'>
                             {mobileOpen ? <FiX className='text-xl' /> : <FiMenu className='text-xl' />}
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
+                {/* Mobile */}
                 {mobileOpen && (
                     <div className='lg:hidden border-t border-slate-700 py-3 space-y-0.5 max-h-[80vh] overflow-y-auto'>
                         {[
                             { to: '/', icon: <FiGrid />, label: 'Home' },
                             { to: '/courses', icon: <FiBook />, label: 'All Courses' },
                             { to: '/tutors', icon: <FiUsers />, label: 'Find Tutors' },
-                            { to: '/about', icon: <FiAward />, label: 'About Us' },
-                            { to: '/contact', icon: <FiUser />, label: 'Contact Us' },
+                            { to: '/demo', icon: <FiPlay />, label: 'Request Demo' },
+                            { to: '/about', icon: <FiInfo />, label: 'About Us' },
+                            { to: '/contact', icon: <FiMail />, label: 'Contact Us' },
                         ].map(item => (
                             <Link key={item.to} to={item.to} onClick={() => setMobileOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive(item.to) ? 'text-yellow-400 bg-slate-800' : 'text-slate-300 hover:bg-slate-800 hover:text-yellow-400'}`}>
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isActive(item.to) ? 'text-yellow-400 bg-slate-800' : 'text-slate-300 hover:bg-slate-800 hover:text-yellow-400'}`}>
                                 <span className='text-yellow-400/70'>{item.icon}</span> {item.label}
                             </Link>
                         ))}
-
                         {isLoggedIn && (
                             <>
                                 <div className='border-t border-slate-700 my-2' />
-                                <div className='px-4 py-1'>
-                                    <span className={`text-xs px-2 py-1 rounded-full ${role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400' : isSubscribed ? 'bg-yellow-400/20 text-yellow-400' : 'bg-slate-700 text-slate-400'}`}>
-                                        {role === 'ADMIN' ? '👑 Admin' : isSubscribed ? '⭐ Pro Member' : '🔓 Free Member'}
-                                    </span>
-                                </div>
                                 {[
                                     { to: '/dashboard', icon: <FiGrid />, label: 'My Dashboard' },
                                     { to: '/profile', icon: <FiUser />, label: 'My Profile' },
@@ -378,19 +425,12 @@ function Navbar() {
                                     <>
                                         <Link to='/admin/dashboard' onClick={() => setMobileOpen(false)} className='flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-yellow-400 rounded-lg'><FiSettings className='text-yellow-400/70' /> Admin Dashboard</Link>
                                         <Link to='/admin/users' onClick={() => setMobileOpen(false)} className='flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-yellow-400 rounded-lg'><FiUsers className='text-yellow-400/70' /> Manage Users</Link>
+                                        <Link to='/admin/subscribers' onClick={() => setMobileOpen(false)} className='flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-yellow-400 rounded-lg'><FiBook className='text-yellow-400/70' /> Subscribers</Link>
                                     </>
-                                )}
-                                {!isSubscribed && role !== 'ADMIN' && (
-                                    <div className='px-4 py-2'>
-                                        <Link to='/courses' onClick={() => setMobileOpen(false)} className='flex items-center justify-center gap-2 bg-yellow-500 text-black font-semibold py-2.5 rounded-lg text-sm'>
-                                            <FiStar /> Upgrade to Pro — ₹499/yr
-                                        </Link>
-                                    </div>
                                 )}
                                 <button onClick={onLogout} className='flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg w-full'><FiLogOut /> Log Out</button>
                             </>
                         )}
-
                         {isTutorLoggedIn && (
                             <>
                                 <div className='border-t border-slate-700 my-2' />
@@ -399,14 +439,13 @@ function Navbar() {
                                 <button onClick={onTutorLogout} className='flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg w-full'><FiLogOut /> Log Out</button>
                             </>
                         )}
-
                         {!isLoggedIn && !isTutorLoggedIn && (
                             <>
                                 <div className='border-t border-slate-700 my-2' />
-                                <div className='flex flex-col gap-2 px-4 pt-1 pb-2'>
-                                    <Link to='/signup' onClick={() => setMobileOpen(false)} className='bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2.5 rounded-lg text-center text-sm'>Get Started Free</Link>
+                                <div className='flex flex-col gap-2 px-4 pb-2'>
+                                    <Link to='/signup' onClick={() => setMobileOpen(false)} className='bg-yellow-500 text-black font-semibold py-2.5 rounded-lg text-center text-sm'>Get Started Free</Link>
                                     <Link to='/login' onClick={() => setMobileOpen(false)} className='border border-yellow-500/50 text-yellow-400 font-semibold py-2.5 rounded-lg text-center text-sm'>Login</Link>
-                                    <Link to='/tutor/login' onClick={() => setMobileOpen(false)} className='bg-slate-700 text-white font-semibold py-2.5 rounded-lg text-center text-sm'>Tutor Login</Link>
+                                    <Link to='/demo' onClick={() => setMobileOpen(false)} className='bg-slate-700 text-white font-semibold py-2.5 rounded-lg text-center text-sm'>Request Demo</Link>
                                     <Link to='/tutor/signup' onClick={() => setMobileOpen(false)} className='border border-slate-600 text-slate-300 font-semibold py-2.5 rounded-lg text-center text-sm'>Become a Tutor</Link>
                                 </div>
                             </>
