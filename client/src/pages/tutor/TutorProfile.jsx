@@ -12,11 +12,21 @@ function TutorProfile() {
     const navigate = useNavigate()
     const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn)
     const userData = useSelector((state) => state?.auth?.data)
+    const role = useSelector((state) => state?.auth?.role) // Get user role
 
     const [tutor, setTutor] = useState(null)
     const [loading, setLoading] = useState(true)
     const [review, setReview] = useState({ rating: 5, comment: '' })
-    const [booking, setBooking] = useState({ date: '', time: '', duration: 1, notes: '' })
+    
+    // Updated booking state to include selectedStudentId
+    const [booking, setBooking] = useState({ 
+        date: '', 
+        time: '', 
+        duration: 1, 
+        notes: '',
+        selectedStudentId: '' // For Admin use
+    })
+    
     const [showBooking, setShowBooking] = useState(false)
     const [paymentLoading, setPaymentLoading] = useState(false)
 
@@ -46,25 +56,32 @@ function TutorProfile() {
             return
         }
 
+        // Admin Validation: Check if student ID is provided
+        if (role === 'ADMIN' && !booking.selectedStudentId) {
+            toast.error('Admin Mode: Please enter a Student ID')
+            return
+        }
+
         setPaymentLoading(true)
         try {
-            // Step 1: Create Razorpay order (also checks time conflict)
+            // Step 1: Create Razorpay order (Passing selectedStudentId)
             const res = await axiosInstance.post('/api/v1/booking/order', {
                 tutorId: id,
                 date: booking.date,
                 time: booking.time,
                 duration: booking.duration,
-                notes: booking.notes
+                notes: booking.notes,
+                selectedStudentId: booking.selectedStudentId // Matches backend controller
             })
 
-            const { key, order, amount, bookingDetails } = res.data
+            const { key, order, bookingDetails } = res.data
 
             // Step 2: Open Razorpay payment
             const options = {
                 key,
                 amount: order.amount,
                 currency: 'INR',
-                name: 'LMS Platform',
+                name: 'LearnSphere',
                 description: `Lesson with ${tutor?.name} - ${booking.duration}hr`,
                 order_id: order.id,
                 theme: { color: '#EAB308' },
@@ -76,12 +93,15 @@ function TutorProfile() {
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
-                            bookingDetails
+                            bookingDetails: {
+                                ...bookingDetails,
+                                selectedStudentId: booking.selectedStudentId // Pass ID for verification logic
+                            }
                         })
                         if (verifyRes.data.success) {
                             toast.success('Lesson booked and payment successful!')
                             setShowBooking(false)
-                            setBooking({ date: '', time: '', duration: 1, notes: '' })
+                            setBooking({ date: '', time: '', duration: 1, notes: '', selectedStudentId: '' })
                             navigate('/my-bookings')
                         }
                     } catch (err) {
@@ -159,6 +179,23 @@ function TutorProfile() {
                             <FiCalendar /> Book & Pay for a Lesson
                         </h2>
                         <form onSubmit={handleBooking} className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            
+                            {/* NEW: Admin Student Assignment Input */}
+                            {role === 'ADMIN' && (
+                                <div className='md:col-span-2 bg-slate-900 p-4 rounded-lg border border-yellow-500/50 mb-2'>
+                                    <label className='text-yellow-500 text-sm font-bold mb-2 block'>Admin: Assign Lesson to Student (Paste User ID) *</label>
+                                    <input 
+                                        type='text' 
+                                        required
+                                        placeholder='Example: 65f123abc456def789...'
+                                        className='w-full bg-slate-700 px-4 py-3 rounded-lg text-white outline-none border border-slate-600 focus:border-yellow-500'
+                                        value={booking.selectedStudentId}
+                                        onChange={(e) => setBooking({ ...booking, selectedStudentId: e.target.value })} 
+                                    />
+                                    <p className='text-slate-500 text-xs mt-2'>Since you are an Admin, you must specify which student this lesson belongs to.</p>
+                                </div>
+                            )}
+
                             <div>
                                 <label className='text-slate-400 text-sm mb-1 block'>Date *</label>
                                 <input type='date' required
@@ -212,7 +249,7 @@ function TutorProfile() {
                     </div>
                 )}
 
-                {/* Expertise */}
+                {/* Expertise, Availability, and Reviews sections remain unchanged */}
                 <div className='bg-slate-800 rounded-xl p-6 mb-6'>
                     <h2 className='text-xl font-bold mb-4 text-yellow-400'>Expertise</h2>
                     <div className='flex flex-wrap gap-2'>
@@ -222,7 +259,6 @@ function TutorProfile() {
                     </div>
                 </div>
 
-                {/* Availability */}
                 <div className='bg-slate-800 rounded-xl p-6 mb-6'>
                     <h2 className='text-xl font-bold mb-4 text-yellow-400 flex items-center gap-2'><FiClock /> Availability</h2>
                     {tutor?.availability?.length > 0 ? (
@@ -237,7 +273,6 @@ function TutorProfile() {
                     ) : <p className='text-slate-400'>No availability set yet.</p>}
                 </div>
 
-                {/* Reviews */}
                 <div className='bg-slate-800 rounded-xl p-6'>
                     <h2 className='text-xl font-bold mb-4 text-yellow-400'>Student Reviews</h2>
                     {tutor?.reviews?.length > 0 ? (
