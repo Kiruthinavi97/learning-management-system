@@ -97,6 +97,23 @@ Before running this project locally, ensure you have the following installed:
 
 3. Access the application at https://lmsguga.netlify.app/
 
+4. Demo user account credentials
+   Username  :demouser
+   email id : demouser.26@gmail.com
+   password : Demouser@26
+
+For Subcription you can use Netbanking ->select any bank name -> it will proceed (since it is dummy payment module)
+or choose Cards -> Enter this dummy card details :4100 2800 0000 1007 -> any CVV and expiry date with furture date
+
+5. Demo Admin account credentials
+   Username  :demouser
+   email id : demouser.26@gmail.com
+   password : Demouser@26
+   
+6. Demo Tutor account crendentials
+   Username  :demouser
+   email id : demouser.26@gmail.com
+   password : Demouser@26
 ## Subscription Management
 
 - Users can purchase subscriptions for accessing premium content or features.
