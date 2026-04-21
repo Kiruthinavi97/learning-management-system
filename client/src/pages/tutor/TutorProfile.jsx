@@ -141,7 +141,7 @@ function TutorProfile() {
                         </div>
                         <p className='text-slate-300 mb-4'>{tutor?.bio}</p>
                         <div className='flex flex-wrap gap-4 text-sm'>
-                            <span className='flex items-center gap-1 text-green-400'><BsCurrencyRupee />₹{tutor?.hourlyRate}/hr</span>
+                            <span className='flex items-center gap-1 text-green-400'><BsCurrencyRupee />{tutor?.hourlyRate}/hr</span>
                             <span className='flex items-center gap-1 text-blue-400'><FiBook />{tutor?.experience} yrs exp</span>
                             <span className='flex items-center gap-1 text-purple-400'><FiBook />{tutor?.qualifications}</span>
                         </div>
@@ -187,7 +187,7 @@ function TutorProfile() {
                             <div>
                                 <label className='text-slate-400 text-sm mb-1 block'>Total Amount</label>
                                 <div className='w-full bg-slate-700 px-4 py-3 rounded-lg text-green-400 font-bold flex items-center gap-1'>
-                                    <BsCurrencyRupee />₹{totalAmount}
+                                    <BsCurrencyRupee />{totalAmount}
                                 </div>
                             </div>
                             <div className='md:col-span-2'>

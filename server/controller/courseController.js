@@ -4,6 +4,40 @@ import { v2 } from 'cloudinary'
 import fs from 'fs/promises'
 import { myCache } from '../app.js';
 
+export const getMyCourses = async (req, res, next) => {
+    try {
+        const { id } = req.user; 
+        const user = await User.findById(id);
+
+        if (!user) {
+            return next(createError(404, "User not found"));
+        }
+
+        if (!user.subscription || !user.subscription.courses) {
+            return res.status(200).json({
+                success: true,
+                message: "No enrolled courses",
+                courses: []
+            });
+        }
+
+        const subscribedCourseIds = user.subscription.courses.map(c => c.courseId);
+
+        const courses = await Course.find({
+            _id: { $in: subscribedCourseIds }
+        }).select('-lectures');
+
+        res.status(200).json({
+            success: true,
+            message: "Enrolled courses fetched successfully",
+            courses
+        });
+    } catch (error) {
+        return next(createError(500, error.message));
+    }
+}
+
+
 export const getAllCourses = async (req, res, next) => {
     try {
         let courses;

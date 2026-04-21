@@ -43,7 +43,7 @@ function AdminSubscribers() {
                         <div className='bg-green-400/10 p-3 rounded-lg'><BsCurrencyRupee className='text-2xl text-green-400' /></div>
                         <div>
                             <p className='text-slate-400 text-sm'>Total Revenue</p>
-                            <p className='text-2xl font-bold'>₹{totalRevenue.toLocaleString()}</p>
+                            <p className='text-2xl font-bold'>{totalRevenue.toLocaleString()}</p>
                         </div>
                     </div>
                     <div className='bg-slate-800 rounded-xl p-5 flex items-center gap-4 border border-slate-700'>
@@ -100,7 +100,7 @@ function AdminSubscribers() {
                                             </td>
                                             <td className='px-6 py-4'>
                                                 <span className='text-green-400 font-semibold flex items-center gap-0.5'>
-                                                    <BsCurrencyRupee />₹{p.amount || 499}
+                                                    <BsCurrencyRupee />{p.amount || 499}
                                                 </span>
                                             </td>
                                             <td className='px-6 py-4'>
