@@ -300,14 +300,28 @@ function Navbar() {
                             </div>
                         )}
 
-                        {/* Guest */}
-                        {!isLoggedIn && !isTutorLoggedIn && (
-                            <div className='hidden lg:flex items-center gap-2'>
-                                <Link to='/login' className='text-slate-300 hover:text-yellow-400 px-3 py-2 text-sm font-medium hover:bg-slate-800 rounded-lg'>Login</Link>
-                                <Link to='/signup' className='bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg text-sm'>Get Started Free</Link>
-                                <Link to='/demo' className='border border-yellow-500/50 text-yellow-400 hover:bg-yellow-500 hover:text-black font-semibold px-4 py-2 rounded-lg text-sm'>Request Demo</Link>
-                            </div>
-                        )}
+                        
+                       {/* Guest */}
+            {!isLoggedIn && !isTutorLoggedIn && (
+                <div className='hidden lg:flex items-center gap-2'>
+                <Link to='/login'
+                    className='text-slate-300 hover:text-yellow-400 px-3 py-2 text-sm font-medium hover:bg-slate-800 rounded-lg'>
+                     Login
+                    </Link>
+                    <Link to='/tutor/login'
+                    className='text-slate-300 hover:text-yellow-400 px-3 py-2 text-sm font-medium hover:bg-slate-800 rounded-lg'>
+                    Tutor Login
+                </Link>
+                <Link to='/signup'
+                    className='bg-yellow-500 hover:bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg text-sm'>
+                    Get Started Free
+                </Link>
+                <Link to='/tutor/signup'
+                    className='border border-yellow-500/50 text-yellow-400 hover:bg-yellow-500 hover:text-black font-semibold px-4 py-2 rounded-lg text-sm'>
+                    Become a Tutor
+                </Link>
+                </div>
+)}
 
                         {/* Student */}
                         {isLoggedIn && (
